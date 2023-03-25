@@ -61,6 +61,9 @@ public:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> GhostCamera;
 
+	//Player Placed Camera
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
+	TSubclassOf<AActor> PlayerCamera;
 
 
 private:
@@ -76,10 +79,13 @@ private:
 
 	void CharMovement();
 	void DestroyGhostCam();
-
+	void PlaceGhostCamera();
+	bool CheckCameraPlacement(FVector HitLocation);
 
 	AActor* SpawnedGhostCamera;
+	AActor* SpawnedPlayerCamera;
 
+	TArray<AActor*> SpawnedPlayerCameraArray;
 public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables | Animation")
@@ -91,10 +97,12 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 		TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "My Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 		float RayLength;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+		float CameraMinDistance;
+
 	
 
 
@@ -102,6 +110,7 @@ public:
 	float Yaw;
 
 	FVector LineTraceLocation;
-
+	FRotator LineTraceNormal;
+	bool LineTraceHitSomething;
 
 };

@@ -43,9 +43,13 @@ APlayerCharacter::APlayerCharacter()
 	InputY = 0;
 
 	LineTraceLocation = FVector::ZeroVector;
+	LineTraceNormal = FRotator::ZeroRotator;
 
 	RayLength = 1000.f;
 	SpawnedGhostCamera = nullptr;
+	LineTraceHitSomething = false;
+	SpawnedPlayerCameraArray = {};
+	CameraMinDistance = 50;
 }
 
 // Called when the game starts or when spawned
@@ -109,6 +113,92 @@ void APlayerCharacter::DestroyGhostCam()
 	}
 }
 
+void APlayerCharacter::PlaceGhostCamera()
+{
+	FHitResult Hit;
+
+	FVector TraceStart = Camera->GetComponentLocation();
+	FVector TraceEnd = TraceStart + (Camera->GetForwardVector() * RayLength);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+	DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 4.f, 4, FColor::Red, false, 0.3f, 0, 1.f);
+
+	UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
+
+
+	UWorld* World = GetWorld();
+
+	if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
+	{
+		LineTraceHitSomething = true;
+		if (World && !SpawnedGhostCamera)
+		{
+			SpawnedGhostCamera = World->SpawnActor<AActor>(GhostCamera, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
+
+		}
+
+		if (SpawnedGhostCamera != nullptr)
+		{
+			FVector OldLocaton = SpawnedGhostCamera->GetActorLocation();
+			FVector NewLocation = Hit.ImpactPoint;
+
+			FRotator OldRotation = SpawnedGhostCamera->GetActorRotation();
+			FRotator NewRotation = Hit.ImpactNormal.Rotation() + FRotator(-90, 0, 0);
+
+			
+			SpawnedGhostCamera->SetActorLocation(FMath::Lerp(OldLocaton, NewLocation, .3));
+			//SpawnedGhostCamera->SetActorLocation(Hit.ImpactPoint);
+			
+			//SpawnedGhostCamera->SetActorRotation(FMath::Lerp(OldRotation, NewRotation, .5));
+			SpawnedGhostCamera->SetActorRotation(NewRotation);
+
+			UE_LOG(LogTemp, Log, TEXT("CameraTransform: Location: %s Rotation: %s"), *NewLocation.ToCompactString(), *NewRotation.ToCompactString());
+		}
+
+
+		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+		LineTraceLocation = Hit.ImpactPoint;
+		LineTraceNormal = Hit.ImpactNormal.Rotation();
+	}
+	else {
+		LineTraceHitSomething = false;
+		UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+
+
+
+		DestroyGhostCam();
+	}
+}
+
+bool APlayerCharacter::CheckCameraPlacement(FVector HitLocation)
+{
+	if (SpawnedPlayerCameraArray.IsEmpty())
+	{
+		return true;
+	}
+	else
+	{
+		bool ReturnValue = true;
+
+		for (int i{}; i < SpawnedPlayerCameraArray.Num(); i++)
+		{
+			float Distance = (HitLocation - SpawnedPlayerCameraArray[i]->GetActorLocation()).Length();
+			if (Distance < CameraMinDistance)
+			{
+				ReturnValue = false;
+			}
+		}
+
+		return ReturnValue;
+	}
+	
+}
+
 
 // Called to bind functionality to input
 void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -162,56 +252,20 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Trigger"));
 
-	FHitResult Hit;
-
-	FVector TraceStart = Camera->GetComponentLocation();
-	FVector TraceEnd = TraceStart + (Camera->GetForwardVector() * RayLength);
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
-
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-	DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 10.f, 8, FColor::Red,false,1,0,1.f);
-
-	UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
-
-
-	UWorld* World = GetWorld();
-
-	if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
-	{
-
-		if (World && !SpawnedGhostCamera)
-		{
-			SpawnedGhostCamera = World->SpawnActor<AActor>(GhostCamera, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
-
-		}
-
-		if(SpawnedGhostCamera != nullptr)
-		{
-			SpawnedGhostCamera->SetActorLocation(Hit.ImpactPoint);
-			//SpawnedGhostCamera->SetActorRotation(Hit.ImpactNormal.ToOrientationRotator());
-		}
-
-
-		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
-		LineTraceLocation = Hit.ImpactPoint;
-	}
-	else {
-		UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
-
-
-		DestroyGhostCam();
-	}
+	PlaceGhostCamera();
 	
 }
 
 void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 {
+	UWorld* World = GetWorld();
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("End"));
-	DrawDebugSphere(GetWorld(), LineTraceLocation, 12.f, 8, FColor::Green, false, 1, 0, 1.f);
+	DrawDebugSphere(GetWorld(), LineTraceLocation, 10.f, 4, FColor::Green, false, 1, 0, 1.f);
+	if (CheckCameraPlacement(LineTraceLocation) && LineTraceHitSomething)
+	{
+		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal + FRotator(-90, 0, 0));
+		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
+	}
 	DestroyGhostCam();
 }
 
