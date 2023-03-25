@@ -8,6 +8,7 @@
 
 struct FInputActionValue;
 
+
 UCLASS()
 class MAAKESTUDIO_API APlayerCharacter : public ACharacter
 {
@@ -17,9 +18,9 @@ public:
 	// Sets default values for this character's properties
 	APlayerCharacter();
 
-
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		class USpringArmComponent* SpringArm{ nullptr };
+	
+	//UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+	//	class USpringArmComponent* SpringArm{ nullptr };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		class UCameraComponent* Camera{ nullptr };
@@ -38,22 +39,69 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
-	class UInputMappingContext* MappingContext;
+	class UInputMappingContext* InputMapping;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
-		class UInputAction* Movement;
+	class UInputAction* MovementForwardBackInput;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
-		class UInputAction* CameraRotation;
+	class UInputAction* MovementRightLeftInput;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+	class UInputAction* CameraPitchInput;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+	class UInputAction* CameraYawInput;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+		class UInputAction* MainActionInput;
+
+	//Ghost Camera
+	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
+	TSubclassOf<AActor> GhostCamera;
+
 
 
 private:
-	void CharacterMovementInput(const FInputActionValue& input);
-	void CameraRotationInput(const FInputActionValue& input);
+	void MovementForwardBack(const FInputActionValue& input);
+	void MovementRightLeft(const FInputActionValue& input);
+
+	void CameraPitch(const FInputActionValue& input);
+	void CameraYaw(const FInputActionValue& input);
+
+	void MainInteractTrigger(const FInputActionValue& input);
+	void MainInteractEnd(const FInputActionValue& input);
+
 
 	void CharMovement();
+	void DestroyGhostCam();
+
+
+	AActor* SpawnedGhostCamera;
+
 public:
+	
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables | Animation")
+		float InputX;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables | Animation")
+		float InputY;
+
+	UPROPERTY(EditAnywhere, Category = "Collision")
+		TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "My Variables")
+		float RayLength;
+
+	
+	
+
 
 	float Pitch;
 	float Yaw;
+
+	FVector LineTraceLocation;
+
+
 };
