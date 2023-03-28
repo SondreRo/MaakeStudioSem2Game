@@ -55,7 +55,19 @@ public:
 	class UInputAction* CameraYawInput;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
-		class UInputAction* MainActionInput;
+	class UInputAction* JumpInput;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+	class UInputAction* MainActionInput;
+
+	//Keyboard Number Buttons
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+		class UInputAction* SwapToolOneInput;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+		class UInputAction* SwapToolTwoInput;
+
+
+
 
 	//Ghost Camera
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
@@ -73,14 +85,26 @@ private:
 	void CameraPitch(const FInputActionValue& input);
 	void CameraYaw(const FInputActionValue& input);
 
+	void JumpTrigger(const FInputActionValue& input);
+
 	void MainInteractTrigger(const FInputActionValue& input);
 	void MainInteractEnd(const FInputActionValue& input);
+
+	//Keyboard Number Buttons
+
+	void SwapToolOne(const FInputActionValue& input);
+	void SwapToolTwo(const FInputActionValue& input);
+
 
 
 	void CharMovement();
 	void DestroyGhostCam();
 	void PlaceGhostCamera();
+	void CameraPlaceMode();
+
 	bool CheckCameraPlacement(FVector HitLocation);
+
+	bool HoldingInteractButton;
 
 	AActor* SpawnedGhostCamera;
 	AActor* SpawnedPlayerCamera;
@@ -97,13 +121,17 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 		TEnumAsByte<ECollisionChannel> TraceChannelProperty = ECC_Pawn;
 
+	
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 		float RayLength;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 		float CameraMinDistance;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+		int ToolSelected;
+
 
 
 	float Pitch;
@@ -112,5 +140,9 @@ public:
 	FVector LineTraceLocation;
 	FRotator LineTraceNormal;
 	bool LineTraceHitSomething;
+
+
+	
+
 
 };

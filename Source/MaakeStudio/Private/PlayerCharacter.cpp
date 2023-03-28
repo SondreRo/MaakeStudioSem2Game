@@ -50,6 +50,9 @@ APlayerCharacter::APlayerCharacter()
 	LineTraceHitSomething = false;
 	SpawnedPlayerCameraArray = {};
 	CameraMinDistance = 50;
+	ToolSelected = 1;
+
+	HoldingInteractButton = false;
 }
 
 // Called when the game starts or when spawned
@@ -126,9 +129,9 @@ void APlayerCharacter::PlaceGhostCamera()
 	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
 
 	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-	DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 4.f, 4, FColor::Red, false, 0.3f, 0, 1.f);
+	//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 4.f, 4, FColor::Red, false, 0.3f, 0, 1.f);
 
-	UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
+	//UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
 
 
 	UWorld* World = GetWorld();
@@ -157,22 +160,35 @@ void APlayerCharacter::PlaceGhostCamera()
 			//SpawnedGhostCamera->SetActorRotation(FMath::Lerp(OldRotation, NewRotation, .5));
 			SpawnedGhostCamera->SetActorRotation(NewRotation);
 
-			UE_LOG(LogTemp, Log, TEXT("CameraTransform: Location: %s Rotation: %s"), *NewLocation.ToCompactString(), *NewRotation.ToCompactString());
+			//UE_LOG(LogTemp, Log, TEXT("CameraTransform: Location: %s Rotation: %s"), *NewLocation.ToCompactString(), *NewRotation.ToCompactString());
 		}
 
 
-		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+		//UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
 		LineTraceLocation = Hit.ImpactPoint;
 		LineTraceNormal = Hit.ImpactNormal.Rotation();
 	}
 	else {
 		LineTraceHitSomething = false;
-		UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+		//UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
 
 
 
 		DestroyGhostCam();
 	}
+}
+
+void APlayerCharacter::CameraPlaceMode()
+{
+	UWorld* World = GetWorld();
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("End"));
+	//DrawDebugSphere(GetWorld(), LineTraceLocation, 10.f, 4, FColor::Green, false, 1, 0, 1.f);
+	if (CheckCameraPlacement(LineTraceLocation) && LineTraceHitSomething)
+	{
+		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal + FRotator(-90, 0, 0));
+		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
+	}
+	DestroyGhostCam();
 }
 
 bool APlayerCharacter::CheckCameraPlacement(FVector HitLocation)
@@ -222,8 +238,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(CameraYawInput, ETriggerEvent::Triggered, this, &APlayerCharacter::CameraYaw);
 		EnhanceInputCom->BindAction(CameraYawInput, ETriggerEvent::Completed, this, &APlayerCharacter::CameraYaw);
 
+		EnhanceInputCom->BindAction(JumpInput, ETriggerEvent::Started, this, &APlayerCharacter::JumpTrigger);
+
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MainInteractTrigger);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Completed, this, &APlayerCharacter::MainInteractEnd);
+
+		//Keyboard Number Buttons
+		EnhanceInputCom->BindAction(SwapToolOneInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolOne);
+		EnhanceInputCom->BindAction(SwapToolTwoInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolTwo);
 
 	}
 }
@@ -248,26 +270,78 @@ void APlayerCharacter::CameraYaw(const FInputActionValue& input)
 	Yaw = input.Get<float>();
 }
 
+void APlayerCharacter::JumpTrigger(const FInputActionValue& input)
+{
+	Jump();
+}
+
 void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Trigger"));
 
-	PlaceGhostCamera();
+	if (!HoldingInteractButton)
+	{
+		HoldingInteractButton = true;
+	}
+
+	switch(ToolSelected)
+	{
+	case 1:
+		//Interact
+
+		break;
+	case 2:
+		//Camera Mode
+		PlaceGhostCamera();
+		break;
+		
+	}
+	
+
+	
 	
 }
 
 void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 {
-	UWorld* World = GetWorld();
-	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("End"));
-	DrawDebugSphere(GetWorld(), LineTraceLocation, 10.f, 4, FColor::Green, false, 1, 0, 1.f);
-	if (CheckCameraPlacement(LineTraceLocation) && LineTraceHitSomething)
+	if (HoldingInteractButton)
 	{
-		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal + FRotator(-90, 0, 0));
-		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
+		HoldingInteractButton = false;
 	}
-	DestroyGhostCam();
+
+	switch (ToolSelected)
+	{
+	case 1:
+		//Interact
+
+		break;
+	case 2:
+		//Camera Mode
+		CameraPlaceMode();
+		break;
+
+	}
+	
 }
 
+void APlayerCharacter::SwapToolOne(const FInputActionValue& input)
+{
+	if (HoldingInteractButton)
+	{
+		return;
+	}
+
+	ToolSelected = 1;
+}
+
+void APlayerCharacter::SwapToolTwo(const FInputActionValue& input)
+{
+	if (HoldingInteractButton)
+	{
+		return;
+	}
+
+	ToolSelected = 2;
+}
 
 
