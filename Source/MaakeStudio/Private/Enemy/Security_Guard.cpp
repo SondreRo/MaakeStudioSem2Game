@@ -20,21 +20,18 @@ void ASecurity_Guard::BeginPlay()
 	EnemyController = Cast<AAIController>(GetController());
 	if (EnemyController && PatrolTarget)
 	{
-		for (int i = 0; i < PatrolTargets.Num(); i++)
+		FAIMoveRequest MoveRequest;
+		MoveRequest.SetGoalActor(PatrolTarget);
+		MoveRequest.SetAcceptanceRadius(15.f);
+
+		FNavPathSharedPtr NavPath;
+
+		EnemyController->MoveTo(MoveRequest, &NavPath);
+		TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
+		for (auto& Point : PathPoints)
 		{
-			FAIMoveRequest MoveRequest;
-			MoveRequest.SetGoalActor(PatrolTargets[i]);
-			MoveRequest.SetAcceptanceRadius(15.f);
-
-			FNavPathSharedPtr NavPath;
-
-			EnemyController->MoveTo(MoveRequest, &NavPath);
-			TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
-			for (auto& Point : PathPoints)
-			{
-				const FVector& Location = Point.Location;
-				DrawDebugSphere(GetWorld(), Location, 12.f, 12, FColor::Green, false, 10.f);
-			}
+			const FVector& Location = Point.Location;
+			DrawDebugSphere(GetWorld(), Location, 12.f, 12, FColor::Green, false, 10.f);
 		}
 	}
 }
@@ -43,6 +40,35 @@ void ASecurity_Guard::BeginPlay()
 void ASecurity_Guard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	if (PatrolTarget && EnemyController)
+	{
+		if (InTargetRange(PatrolTarget, PatrolRadius))
+		{
+			TArray<AActor*> ValidTargets;
+			for (AActor* Target : PatrolTargets)
+			{
+				if (Target != PatrolTarget)
+				{
+					ValidTargets.AddUnique(Target);
+				}
+			}
+
+			const int32 NumPatrolTargets = ValidTargets.Num();
+			if (NumPatrolTargets > 0)
+			{
+				const int32 TargetSelection = FMath::RandRange(0, NumPatrolTargets - 1);
+				AActor* Target = ValidTargets[TargetSelection];
+				PatrolTarget = Target;
+
+				FAIMoveRequest MoveRequest;
+				MoveRequest.SetGoalActor(PatrolTarget);
+				MoveRequest.SetAcceptanceRadius(15.f);
+
+				EnemyController->MoveTo(MoveRequest);
+			}
+		}
+	}
 
 }
 
@@ -53,3 +79,11 @@ void ASecurity_Guard::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 
 }
 
+bool ASecurity_Guard::InTargetRange(AActor* Target, double Radius)
+{
+	const double DistanceToTarget = (Target->GetActorLocation() - this->GetActorLocation()).Size();
+
+
+
+	return DistanceToTarget <= Radius;
+}
