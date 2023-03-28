@@ -38,7 +38,10 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "AI Navigation")
 	double PatrolRadius = 200.f;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI NAvigation")
+	bool Playtesting;
 
 private:
 	bool InTargetRange(AActor* Target, double Radius);
+	void MoveTo();
 };

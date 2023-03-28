@@ -20,19 +20,7 @@ void ASecurity_Guard::BeginPlay()
 	EnemyController = Cast<AAIController>(GetController());
 	if (EnemyController && PatrolTarget)
 	{
-		FAIMoveRequest MoveRequest;
-		MoveRequest.SetGoalActor(PatrolTarget);
-		MoveRequest.SetAcceptanceRadius(15.f);
-
-		FNavPathSharedPtr NavPath;
-
-		EnemyController->MoveTo(MoveRequest, &NavPath);
-		TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
-		for (auto& Point : PathPoints)
-		{
-			const FVector& Location = Point.Location;
-			DrawDebugSphere(GetWorld(), Location, 12.f, 12, FColor::Green, false, 10.f);
-		}
+		MoveTo();
 	}
 }
 
@@ -61,11 +49,7 @@ void ASecurity_Guard::Tick(float DeltaTime)
 				AActor* Target = ValidTargets[TargetSelection];
 				PatrolTarget = Target;
 
-				FAIMoveRequest MoveRequest;
-				MoveRequest.SetGoalActor(PatrolTarget);
-				MoveRequest.SetAcceptanceRadius(15.f);
-
-				EnemyController->MoveTo(MoveRequest);
+				MoveTo();
 			}
 		}
 	}
@@ -86,4 +70,25 @@ bool ASecurity_Guard::InTargetRange(AActor* Target, double Radius)
 
 
 	return DistanceToTarget <= Radius;
+}
+
+void ASecurity_Guard::MoveTo()
+{
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalActor(PatrolTarget);
+	MoveRequest.SetAcceptanceRadius(15.f);
+
+	FNavPathSharedPtr NavPath;
+
+	EnemyController->MoveTo(MoveRequest, &NavPath);
+
+	if (Playtesting)
+	{
+		TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
+		for (auto& Point : PathPoints)
+		{
+			const FVector& Location = Point.Location;
+			DrawDebugSphere(GetWorld(), Location, 12.f, 12, FColor::Green, false, 10.f);
+		}
+	}
 }
