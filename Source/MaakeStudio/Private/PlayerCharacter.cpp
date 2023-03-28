@@ -255,6 +255,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(SwapToolOneInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolOne);
 		EnhanceInputCom->BindAction(SwapToolTwoInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolTwo);
 
+
 	}
 }
 
@@ -305,7 +306,9 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 		//Camera Mode
 		PlaceGhostCamera();
 		break;
-		
+
+	default:
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello"));
 	}
 	
 
@@ -332,6 +335,8 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 		CameraPlaceMode();
 		break;
 
+	default:
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello"));
 	}
 	
 }
