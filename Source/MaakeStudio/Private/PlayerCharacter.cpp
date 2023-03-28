@@ -53,6 +53,8 @@ APlayerCharacter::APlayerCharacter()
 	ToolSelected = 1;
 
 	HoldingInteractButton = false;
+
+	MaxCameras = 10;
 }
 
 // Called when the game starts or when spawned
@@ -180,6 +182,12 @@ void APlayerCharacter::PlaceGhostCamera()
 
 void APlayerCharacter::CameraPlaceMode()
 {
+	if (SpawnedPlayerCameraArray.Num() >= MaxCameras)
+	{
+		return;
+	}
+
+
 	UWorld* World = GetWorld();
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("End"));
 	//DrawDebugSphere(GetWorld(), LineTraceLocation, 10.f, 4, FColor::Green, false, 1, 0, 1.f);
@@ -250,6 +258,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 	}
 }
 
+
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)
 {
 	InputX = input.Get<float>();
@@ -283,6 +292,8 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 	{
 		HoldingInteractButton = true;
 	}
+	//Update Blueprint
+	
 
 	switch(ToolSelected)
 	{
@@ -304,6 +315,7 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 {
+	DestroyGhostCam();
 	if (HoldingInteractButton)
 	{
 		HoldingInteractButton = false;
@@ -326,22 +338,26 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 
 void APlayerCharacter::SwapToolOne(const FInputActionValue& input)
 {
+	
 	if (HoldingInteractButton)
 	{
 		return;
 	}
 
 	ToolSelected = 1;
+	UpdateHand(ToolSelected);
 }
 
 void APlayerCharacter::SwapToolTwo(const FInputActionValue& input)
 {
+	
 	if (HoldingInteractButton)
 	{
 		return;
 	}
 
 	ToolSelected = 2;
+	UpdateHand(ToolSelected);
 }
 
 

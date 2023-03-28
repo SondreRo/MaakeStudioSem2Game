@@ -66,7 +66,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
 		class UInputAction* SwapToolTwoInput;
 
-
+	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
+		void UpdateHand(int ItemSlot);
 
 
 	//Ghost Camera
@@ -132,7 +133,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 		int ToolSelected;
 
-
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+		int MaxCameras;
 
 	float Pitch;
 	float Yaw;
