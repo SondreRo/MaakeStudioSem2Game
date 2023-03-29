@@ -199,6 +199,11 @@ void APlayerCharacter::CameraPlaceMode()
 	DestroyGhostCam();
 }
 
+void APlayerCharacter::SelectMode()
+{
+
+}
+
 bool APlayerCharacter::CheckCameraPlacement(FVector HitLocation)
 {
 	if (SpawnedPlayerCameraArray.IsEmpty())
@@ -248,6 +253,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhanceInputCom->BindAction(JumpInput, ETriggerEvent::Started, this, &APlayerCharacter::JumpTrigger);
 
+		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Started, this, &APlayerCharacter::MainInteractTrigger);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MainInteractTrigger);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Completed, this, &APlayerCharacter::MainInteractEnd);
 
@@ -283,6 +289,31 @@ void APlayerCharacter::CameraYaw(const FInputActionValue& input)
 void APlayerCharacter::JumpTrigger(const FInputActionValue& input)
 {
 	Jump();
+}
+
+void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
+{
+	if (!HoldingInteractButton)
+	{
+		HoldingInteractButton = true;
+	}
+	//Update Blueprint
+
+
+	switch (ToolSelected)
+	{
+	case 1:
+		SelectMode();
+
+		break;
+	//case 2:
+		//Camera Mode
+		//PlaceGhostCamera();
+		//break;
+
+	//default:
+		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello"));
+	}
 }
 
 void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)

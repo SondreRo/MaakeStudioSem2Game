@@ -88,6 +88,7 @@ private:
 
 	void JumpTrigger(const FInputActionValue& input);
 
+	void MainInteractStarted(const FInputActionValue& input);
 	void MainInteractTrigger(const FInputActionValue& input);
 	void MainInteractEnd(const FInputActionValue& input);
 
@@ -102,6 +103,8 @@ private:
 	void DestroyGhostCam();
 	void PlaceGhostCamera();
 	void CameraPlaceMode();
+
+	void SelectMode();
 
 	bool CheckCameraPlacement(FVector HitLocation);
 
