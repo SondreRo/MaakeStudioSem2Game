@@ -2,6 +2,9 @@
 
 
 #include "PlayerCharacter.h"
+
+#include <string>
+
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -9,6 +12,7 @@
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputTriggers.h"
+#include "PlayerCamera.h"
 
 #include "Engine/World.h"
 
@@ -55,6 +59,13 @@ APlayerCharacter::APlayerCharacter()
 	HoldingInteractButton = false;
 
 	MaxCameras = 10;
+	WalkSpeed = 400;
+	RunSpeed = 600;
+	IsRunning = false;
+
+	SelectedCamera = nullptr;
+
+
 }
 
 // Called when the game starts or when spawned
@@ -63,6 +74,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
+	GetCharacterMovement()->AirControl = 0.5f;
 
 	APlayerController* PlayerController = Cast<APlayerController>(Controller);
 	if (PlayerController)
@@ -85,6 +97,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	AddControllerYawInput(Yaw);
 	AddControllerPitchInput(Pitch);
+	float velocity = GetVelocity().Length();
+	FString TheFloatStr = FString::SanitizeFloat(velocity);
+
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, TheFloatStr);
 }
 
 void APlayerCharacter::CharMovement()
@@ -201,6 +217,50 @@ void APlayerCharacter::CameraPlaceMode()
 
 void APlayerCharacter::SelectMode()
 {
+	if (SelectedCamera != nullptr)
+	{
+		Cast<APlayerCamera>(SelectedCamera)->CamDeselected();
+		
+	}
+
+	FHitResult Hit;
+
+	FVector TraceStart = Camera->GetComponentLocation();
+	FVector TraceEnd = Camera->GetComponentLocation() + Camera->GetForwardVector() * RayLength;
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, SelectTraceChannelProperty, QueryParams);
+
+	/*DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+	UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
+
+	if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
+	{
+		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+	}
+	else {
+		UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+	}*/
+
+	bool HasHitCamera = false;
+	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("Ray"));
+	for (int i{}; i < SpawnedPlayerCameraArray.Num(); i++)
+	{
+		if (SpawnedPlayerCameraArray[i] == Hit.GetActor())
+		{
+			HasHitCamera = true;
+		}
+	}
+
+	if (HasHitCamera)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("HitCamera"));
+		SelectedCamera = Hit.GetActor();
+		Cast<APlayerCamera>(SelectedCamera)->CamSelected();
+	}
+
+	
 
 }
 
@@ -253,7 +313,10 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		EnhanceInputCom->BindAction(JumpInput, ETriggerEvent::Started, this, &APlayerCharacter::JumpTrigger);
 
-		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Started, this, &APlayerCharacter::MainInteractTrigger);
+		EnhanceInputCom->BindAction(RunInput, ETriggerEvent::Started, this, &APlayerCharacter::RunStart);
+		EnhanceInputCom->BindAction(RunInput, ETriggerEvent::Completed, this, &APlayerCharacter::RunEnd);
+
+		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Started, this, &APlayerCharacter::MainInteractStarted);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MainInteractTrigger);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Completed, this, &APlayerCharacter::MainInteractEnd);
 
@@ -289,6 +352,26 @@ void APlayerCharacter::CameraYaw(const FInputActionValue& input)
 void APlayerCharacter::JumpTrigger(const FInputActionValue& input)
 {
 	Jump();
+}
+
+void APlayerCharacter::DeleteTrigger(const FInputActionValue& input)
+{
+	if (SelectedCamera != nullptr)
+	{
+		SelectedCamera->Destroy();
+	}
+}
+
+void APlayerCharacter::RunStart(const FInputActionValue& input)
+{
+	IsRunning = true;
+	GetCharacterMovement()->MaxWalkSpeed = RunSpeed;
+}
+
+void APlayerCharacter::RunEnd(const FInputActionValue& input)
+{
+	IsRunning = false;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 }
 
 void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
@@ -330,7 +413,7 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 	switch(ToolSelected)
 	{
 	case 1:
-		//Interact
+		//SelectMode();
 
 		break;
 	case 2:
