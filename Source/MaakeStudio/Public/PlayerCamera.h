@@ -15,6 +15,14 @@ public:
 	// Sets default values for this actor's properties
 	APlayerCamera();
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+	class UCameraComponent* Camera{ nullptr };
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+	class USphereComponent* SphereCollider{ nullptr };
+
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyVeriables")
 	UStaticMeshComponent* StaticMesh{ nullptr };
 protected:

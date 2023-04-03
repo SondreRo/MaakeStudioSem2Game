@@ -14,6 +14,7 @@
 #include "InputTriggers.h"
 #include "PlayerCamera.h"
 
+
 #include "Engine/World.h"
 
 // Sets default values
@@ -29,7 +30,7 @@ APlayerCharacter::APlayerCharacter()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(GetRootComponent());
-	Camera->SetRelativeLocation(FVector(0, 0, 50));
+	Camera->SetRelativeLocation(FVector(0, 0, 80));
 	Camera->bUsePawnControlRotation = true;
 
 	//Camera->AddLocalOffset(FVector(0, 0, 50));
@@ -53,7 +54,7 @@ APlayerCharacter::APlayerCharacter()
 	SpawnedGhostCamera = nullptr;
 	LineTraceHitSomething = false;
 	SpawnedPlayerCameraArray = {};
-	CameraMinDistance = 50;
+	CameraMinDistance = 100;
 	ToolSelected = 1;
 
 	HoldingInteractButton = false;
@@ -76,7 +77,7 @@ void APlayerCharacter::BeginPlay()
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->AirControl = 0.5f;
 
-	APlayerController* PlayerController = Cast<APlayerController>(Controller);
+	PlayerController = Cast<APlayerController>(Controller);
 	if (PlayerController)
 	{
 		UEnhancedInputLocalPlayerSubsystem* subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
@@ -86,6 +87,8 @@ void APlayerCharacter::BeginPlay()
 
 		}
 	}
+
+	
 }
 
 // Called every frame
@@ -259,6 +262,10 @@ void APlayerCharacter::SelectMode()
 		SelectedCamera = Hit.GetActor();
 		Cast<APlayerCamera>(SelectedCamera)->CamSelected();
 	}
+	else
+	{
+		SelectedCamera = nullptr;
+	}
 
 	
 
@@ -320,7 +327,14 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MainInteractTrigger);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Completed, this, &APlayerCharacter::MainInteractEnd);
 
+
+		//Delete
+		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
+
 		//Keyboard Number Buttons
+
+		EnhanceInputCom->BindAction(ScrollWheelInput, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollWheelTrigger);
+
 		EnhanceInputCom->BindAction(SwapToolOneInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolOne);
 		EnhanceInputCom->BindAction(SwapToolTwoInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolTwo);
 
@@ -358,7 +372,11 @@ void APlayerCharacter::DeleteTrigger(const FInputActionValue& input)
 {
 	if (SelectedCamera != nullptr)
 	{
-		SelectedCamera->Destroy();
+		AActor* CameraToDestroy = SelectedCamera;
+		SpawnedPlayerCameraArray.Remove(SelectedCamera);
+		CameraToDestroy->Destroy();
+		CameraToDestroy = nullptr;
+
 	}
 }
 
@@ -477,6 +495,58 @@ void APlayerCharacter::SwapToolTwo(const FInputActionValue& input)
 
 	ToolSelected = 2;
 	UpdateHand(ToolSelected);
+}
+
+void APlayerCharacter::ScrollWheelTrigger(const FInputActionValue& input)
+{
+	ScrollWheelValue = input.Get<float>();
+
+	if  (FMath::IsNearlyZero(ScrollWheelValue))
+	{
+			return;
+	}
+
+
+	if (ScrollWheelValue > 0)
+	{
+		ToolSelected++;
+		
+	}
+	else if (ScrollWheelValue < 0)
+	{
+		ToolSelected--;
+		
+	}
+
+
+	if  (ToolSelected >= 3)
+	{
+		ToolSelected = 1;
+	}
+	if (ToolSelected <= 0)
+	{
+		ToolSelected = 2;
+	}
+		UpdateHand(ToolSelected);
+}
+
+void APlayerCharacter::ChangeViewTarget()
+{
+	if (PlayerController == nullptr)
+	{
+				return;
+	}
+
+	AActor * NewViewTarget = SpawnedPlayerCameraArray[0];
+
+	PlayerController->SetViewTargetWithBlend(
+		NewViewTarget,
+		3.f,
+		EViewTargetBlendFunction::VTBlend_Cubic,
+		1.f,
+		true);
+
+
 }
 
 

@@ -73,6 +73,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
 	class UInputAction* SwapToolTwoInput;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+	class UInputAction* ScrollWheelInput;
+
+
 	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
 		void UpdateHand(int ItemSlot);
 
@@ -109,12 +113,17 @@ private:
 	void SwapToolOne(const FInputActionValue& input);
 	void SwapToolTwo(const FInputActionValue& input);
 
+	void ScrollWheelTrigger(const FInputActionValue& input);
 
+
+	
 
 	void CharMovement();
 	void DestroyGhostCam();
 	void PlaceGhostCamera();
 	void CameraPlaceMode();
+
+	bool CameraViewMode;
 
 	void SelectMode();
 
@@ -124,6 +133,8 @@ private:
 
 	AActor* SpawnedGhostCamera;
 	AActor* SpawnedPlayerCamera;
+	
+	APlayerController* PlayerController;
 
 	TArray<AActor*> SpawnedPlayerCameraArray;
 public:
@@ -141,21 +152,23 @@ public:
 		TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty = ECC_Pawn;
 	
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		float RayLength;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		float CameraMinDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 		int ToolSelected;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		AActor* SelectedCamera;
 
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		int MaxCameras;
+
+	void ChangeViewTarget();
 
 	float Pitch;
 	float Yaw;
@@ -164,6 +177,8 @@ public:
 	FRotator LineTraceNormal;
 	bool LineTraceHitSomething;
 	bool IsRunning;
+
+	float ScrollWheelValue;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 	float WalkSpeed;
