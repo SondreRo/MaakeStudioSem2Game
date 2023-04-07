@@ -66,8 +66,8 @@ APlayerCharacter::APlayerCharacter()
 
 	SelectedCamera = nullptr;
 
-	CameraViewMode = false;
-	CameraToChangeTo = -1;
+	CameraViewMode = false;	
+	CameraToChangeTo = 0;
 
 }
 
@@ -391,6 +391,10 @@ void APlayerCharacter::MovementRightLeftStarted(const FInputActionValue& input)
 			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
 			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("HELLO"));
 			CameraToChangeTo++;
+			if (CameraToChangeTo > SpawnedPlayerCameraArray.Num() - 1)
+			{
+				CameraToChangeTo = 0;
+			}
 			
 
 		}
@@ -399,6 +403,10 @@ void APlayerCharacter::MovementRightLeftStarted(const FInputActionValue& input)
 			CameraToChangeTo--;
 			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
 
+			if (CameraToChangeTo < 0)
+			{
+				CameraToChangeTo = SpawnedPlayerCameraArray.Num() - 1;
+			}
 		}
 		ChangeViewTarget(CameraToChangeTo);
 	}
@@ -440,7 +448,8 @@ void APlayerCharacter::DeleteTrigger(const FInputActionValue& input)
 	if (SelectedCamera != nullptr)
 	{
 		AActor* CameraToDestroy = SelectedCamera;
-		SpawnedPlayerCameraArray.Remove(SelectedCamera);
+		SpawnedPlayerCameraArray.RemoveSwap(SelectedCamera);
+		
 		CameraToDestroy->Destroy();
 		CameraToDestroy = nullptr;
 
@@ -627,13 +636,17 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		return;
 
 	}
-
-	if (CameraIndex > -1)
+	AActor* NewViewTarget = nullptr;
+	if (CameraIndex <= -1)
 	{
-		return;
+		NewViewTarget = this;
 
 	}
-	if (CameraIndex > SpawnedPlayerCameraArray.Num())
+	else
+	{
+		NewViewTarget = SpawnedPlayerCameraArray[CameraIndex];
+	}
+	if (CameraIndex >= SpawnedPlayerCameraArray.Num())
 	{
 		return;
 	}
@@ -641,7 +654,7 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 
 
 
-	AActor * NewViewTarget = SpawnedPlayerCameraArray[CameraIndex];
+	
 
 	if (CameraIndex <= -1)
 	{
