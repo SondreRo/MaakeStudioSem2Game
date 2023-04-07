@@ -3,7 +3,7 @@
 
 #include "PlayerCharacter.h"
 
-#include <string>
+
 
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
@@ -66,6 +66,8 @@ APlayerCharacter::APlayerCharacter()
 
 	SelectedCamera = nullptr;
 
+	CameraViewMode = false;
+	CameraToChangeTo = -1;
 
 }
 
@@ -96,18 +98,21 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	
 	CharMovement();
 
 	AddControllerYawInput(Yaw);
 	AddControllerPitchInput(Pitch);
-	float velocity = GetVelocity().Length();
+
+	/*float velocity = GetVelocity().Length();
 	FString TheFloatStr = FString::SanitizeFloat(velocity);
 
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, TheFloatStr);
+	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, TheFloatStr);*/
 }
-
 void APlayerCharacter::CharMovement()
 {
+	
+
 	FRotator ControlRotation = Controller->GetControlRotation();
 	ControlRotation.Roll = 0.f;
 	ControlRotation.Pitch = 0.f;
@@ -128,102 +133,12 @@ void APlayerCharacter::CharMovement()
 	}
 }
 
-void APlayerCharacter::DestroyGhostCam()
-{
-	if (SpawnedGhostCamera != nullptr)
-	{
-		SpawnedGhostCamera->Destroy();
-		SpawnedGhostCamera = nullptr;
-	}
-}
-
-void APlayerCharacter::PlaceGhostCamera()
-{
-	FHitResult Hit;
-
-	FVector TraceStart = Camera->GetComponentLocation();
-	FVector TraceEnd = TraceStart + (Camera->GetForwardVector() * RayLength);
-
-	FCollisionQueryParams QueryParams;
-	QueryParams.AddIgnoredActor(this);
-
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
-
-	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-	//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 4.f, 4, FColor::Red, false, 0.3f, 0, 1.f);
-
-	//UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
-
-
-	UWorld* World = GetWorld();
-
-	if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
-	{
-		LineTraceHitSomething = true;
-		if (World && !SpawnedGhostCamera)
-		{
-			SpawnedGhostCamera = World->SpawnActor<AActor>(GhostCamera, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
-
-		}
-
-		if (SpawnedGhostCamera != nullptr)
-		{
-			FVector OldLocaton = SpawnedGhostCamera->GetActorLocation();
-			FVector NewLocation = Hit.ImpactPoint;
-
-			FRotator OldRotation = SpawnedGhostCamera->GetActorRotation();
-			FRotator NewRotation = Hit.ImpactNormal.Rotation() + FRotator(-90, 0, 0);
-
-			
-			SpawnedGhostCamera->SetActorLocation(FMath::Lerp(OldLocaton, NewLocation, .3));
-			//SpawnedGhostCamera->SetActorLocation(Hit.ImpactPoint);
-			
-			//SpawnedGhostCamera->SetActorRotation(FMath::Lerp(OldRotation, NewRotation, .5));
-			SpawnedGhostCamera->SetActorRotation(NewRotation);
-
-			//UE_LOG(LogTemp, Log, TEXT("CameraTransform: Location: %s Rotation: %s"), *NewLocation.ToCompactString(), *NewRotation.ToCompactString());
-		}
-
-
-		//UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
-		LineTraceLocation = Hit.ImpactPoint;
-		LineTraceNormal = Hit.ImpactNormal.Rotation();
-	}
-	else {
-		LineTraceHitSomething = false;
-		//UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
-
-
-
-		DestroyGhostCam();
-	}
-}
-
-void APlayerCharacter::CameraPlaceMode()
-{
-	if (SpawnedPlayerCameraArray.Num() >= MaxCameras)
-	{
-		return;
-	}
-
-
-	UWorld* World = GetWorld();
-	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("End"));
-	//DrawDebugSphere(GetWorld(), LineTraceLocation, 10.f, 4, FColor::Green, false, 1, 0, 1.f);
-	if (CheckCameraPlacement(LineTraceLocation) && LineTraceHitSomething)
-	{
-		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal + FRotator(-90, 0, 0));
-		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
-	}
-	DestroyGhostCam();
-}
-
 void APlayerCharacter::SelectMode()
 {
 	if (SelectedCamera != nullptr)
 	{
 		Cast<APlayerCamera>(SelectedCamera)->CamDeselected();
-		
+
 	}
 
 	FHitResult Hit;
@@ -267,8 +182,98 @@ void APlayerCharacter::SelectMode()
 		SelectedCamera = nullptr;
 	}
 
-	
 
+
+}
+
+void APlayerCharacter::PlaceGhostCamera()
+{
+	FHitResult Hit;
+
+	FVector TraceStart = Camera->GetComponentLocation();
+	FVector TraceEnd = TraceStart + (Camera->GetForwardVector() * RayLength);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
+	//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 4.f, 4, FColor::Red, false, 0.3f, 0, 1.f);
+
+	//UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
+
+
+	UWorld* World = GetWorld();
+
+	if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
+	{
+		LineTraceHitSomething = true;
+		if (World && !SpawnedGhostCamera)
+		{
+			SpawnedGhostCamera = World->SpawnActor<AActor>(GhostCamera, Hit.ImpactPoint, Hit.ImpactNormal.ToOrientationRotator());
+
+		}
+
+		if (SpawnedGhostCamera != nullptr)
+		{
+			FVector OldLocaton = SpawnedGhostCamera->GetActorLocation();
+			FVector NewLocation = Hit.ImpactPoint;
+
+			FRotator OldRotation = SpawnedGhostCamera->GetActorRotation();
+			FRotator NewRotation = Hit.ImpactNormal.Rotation() + FRotator(-90, 0, 0);
+
+
+			SpawnedGhostCamera->SetActorLocation(FMath::Lerp(OldLocaton, NewLocation, .3));
+			//SpawnedGhostCamera->SetActorLocation(Hit.ImpactPoint);
+
+			//SpawnedGhostCamera->SetActorRotation(FMath::Lerp(OldRotation, NewRotation, .5));
+			SpawnedGhostCamera->SetActorRotation(NewRotation);
+
+			//UE_LOG(LogTemp, Log, TEXT("CameraTransform: Location: %s Rotation: %s"), *NewLocation.ToCompactString(), *NewRotation.ToCompactString());
+		}
+
+
+		//UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+		LineTraceLocation = Hit.ImpactPoint;
+		LineTraceNormal = Hit.ImpactNormal.Rotation();
+	}
+	else {
+		LineTraceHitSomething = false;
+		//UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
+
+
+
+		DestroyGhostCam();
+	}
+}
+
+void APlayerCharacter::DestroyGhostCam()
+{
+	if (SpawnedGhostCamera != nullptr)
+	{
+		SpawnedGhostCamera->Destroy();
+		SpawnedGhostCamera = nullptr;
+	}
+}
+
+void APlayerCharacter::CameraPlaceMode()
+{
+	if (SpawnedPlayerCameraArray.Num() >= MaxCameras)
+	{
+		return;
+	}
+
+
+	UWorld* World = GetWorld();
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("End"));
+	//DrawDebugSphere(GetWorld(), LineTraceLocation, 10.f, 4, FColor::Green, false, 1, 0, 1.f);
+	if (CheckCameraPlacement(LineTraceLocation) && LineTraceHitSomething)
+	{
+		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal + FRotator(-90, 0, 0));
+		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
+	}
+	DestroyGhostCam();
 }
 
 bool APlayerCharacter::CheckCameraPlacement(FVector HitLocation)
@@ -307,9 +312,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(MovementForwardBackInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MovementForwardBack);
 		EnhanceInputCom->BindAction(MovementForwardBackInput, ETriggerEvent::Completed, this, &APlayerCharacter::MovementForwardBack);
 
+		EnhanceInputCom->BindAction(MovementRightLeftInput, ETriggerEvent::Started, this, &APlayerCharacter::MovementRightLeftStarted);
+
 
 		EnhanceInputCom->BindAction(MovementRightLeftInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MovementRightLeft);
 		EnhanceInputCom->BindAction(MovementRightLeftInput, ETriggerEvent::Completed, this, &APlayerCharacter::MovementRightLeft);
+
 
 
 		EnhanceInputCom->BindAction(CameraPitchInput, ETriggerEvent::Triggered, this, &APlayerCharacter::CameraPitch);
@@ -319,6 +327,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(CameraYawInput, ETriggerEvent::Completed, this, &APlayerCharacter::CameraYaw);
 
 		EnhanceInputCom->BindAction(JumpInput, ETriggerEvent::Started, this, &APlayerCharacter::JumpTrigger);
+
+		EnhanceInputCom->BindAction(CameraModeToggleInput, ETriggerEvent::Started, this, &APlayerCharacter::CameraModeToggleTrigger);
+
 
 		EnhanceInputCom->BindAction(RunInput, ETriggerEvent::Started, this, &APlayerCharacter::RunStart);
 		EnhanceInputCom->BindAction(RunInput, ETriggerEvent::Completed, this, &APlayerCharacter::RunEnd);
@@ -345,26 +356,82 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)
 {
+	if (CameraViewMode)
+	{
+		InputX = 0;
+		return;
+	}
+
 	InputX = input.Get<float>();
 }
 
 void APlayerCharacter::MovementRightLeft(const FInputActionValue& input)
 {
+	if (CameraViewMode)
+	{
+		InputY = 0;
+		return;
+	}
 	InputY = input.Get<float>();
+}
+
+void APlayerCharacter::MovementRightLeftStarted(const FInputActionValue& input)
+{
+	if (CameraViewMode)
+	{
+		if (FMath::IsNearlyZero(input.Get<float>()))
+		{
+			return;
+		}
+		
+
+
+		if (input.Get<float>() > 0)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("HELLO"));
+			CameraToChangeTo++;
+			
+
+		}
+		else if (input.Get<float>() < 0)
+		{
+			CameraToChangeTo--;
+			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
+
+		}
+		ChangeViewTarget(CameraToChangeTo);
+	}
+
+	
 }
 
 void APlayerCharacter::CameraPitch(const FInputActionValue& input)
 {
+	if (CameraViewMode)
+	{
+		Pitch = 0;
+		return;
+	}
 	Pitch = input.Get<float>();
 }
 
 void APlayerCharacter::CameraYaw(const FInputActionValue& input)
 {
+	if (CameraViewMode)
+	{
+		Yaw = 0;
+		return;
+	}
 	Yaw = input.Get<float>();
 }
 
 void APlayerCharacter::JumpTrigger(const FInputActionValue& input)
 {
+	if (CameraViewMode)
+	{
+		return;
+	}
 	Jump();
 }
 
@@ -378,6 +445,23 @@ void APlayerCharacter::DeleteTrigger(const FInputActionValue& input)
 		CameraToDestroy = nullptr;
 
 	}
+}
+
+void APlayerCharacter::CameraModeToggleTrigger(const FInputActionValue& input)
+{
+	if (CameraViewMode)
+	{
+		CameraViewMode = false;
+		ChangeViewTarget(-1);
+	}
+	else
+	{
+		ChangeViewTarget(CameraToChangeTo);
+		CameraViewMode = true;
+	}
+
+	
+
 }
 
 void APlayerCharacter::RunStart(const FInputActionValue& input)
@@ -530,18 +614,44 @@ void APlayerCharacter::ScrollWheelTrigger(const FInputActionValue& input)
 		UpdateHand(ToolSelected);
 }
 
-void APlayerCharacter::ChangeViewTarget()
+void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 {
 	if (PlayerController == nullptr)
 	{
-				return;
+		return;
+	}
+	if (SpawnedPlayerCameraArray.IsEmpty())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("CantChangeCam"));
+
+		return;
+
 	}
 
-	AActor * NewViewTarget = SpawnedPlayerCameraArray[0];
+	if (CameraIndex > -1)
+	{
+		return;
+
+	}
+	if (CameraIndex > SpawnedPlayerCameraArray.Num())
+	{
+		return;
+	}
+	
+
+
+
+	AActor * NewViewTarget = SpawnedPlayerCameraArray[CameraIndex];
+
+	if (CameraIndex <= -1)
+	{
+		NewViewTarget = this;
+	}
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("ChanginViewTarget"));
 
 	PlayerController->SetViewTargetWithBlend(
 		NewViewTarget,
-		3.f,
+		0.5f,
 		EViewTargetBlendFunction::VTBlend_Cubic,
 		1.f,
 		true);

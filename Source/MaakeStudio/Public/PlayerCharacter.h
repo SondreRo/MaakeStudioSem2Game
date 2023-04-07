@@ -67,6 +67,9 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
 	class UInputAction* MainActionInput;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+		class UInputAction* CameraModeToggleInput;
+
 	//Keyboard Number Buttons
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
 	class UInputAction* SwapToolOneInput;
@@ -91,6 +94,8 @@ public:
 
 
 private:
+
+	//---------------MovementInputs-------------------//
 	void MovementForwardBack(const FInputActionValue& input);
 	void MovementRightLeft(const FInputActionValue& input);
 
@@ -99,50 +104,69 @@ private:
 
 	void JumpTrigger(const FInputActionValue& input);
 
-	void DeleteTrigger(const FInputActionValue& input);
-
 	void RunStart(const FInputActionValue& input);
 	void RunEnd(const FInputActionValue& input);
 
+	//---------------InteractionInputs-------------------//
 	void MainInteractStarted(const FInputActionValue& input);
 	void MainInteractTrigger(const FInputActionValue& input);
 	void MainInteractEnd(const FInputActionValue& input);
 
-	//Keyboard Number Buttons
+	void DeleteTrigger(const FInputActionValue& input);
 
+	//---------------InventoryButtonInputs-------------------//
 	void SwapToolOne(const FInputActionValue& input);
 	void SwapToolTwo(const FInputActionValue& input);
 
 	void ScrollWheelTrigger(const FInputActionValue& input);
 
+	//---------------CameraInputs-------------------//
+	void CameraModeToggleTrigger(const FInputActionValue& input);
 
-	
+	void MovementRightLeftStarted(const FInputActionValue& input);
 
+
+
+		
+	//---------------MovementFunctions-------------------//
 	void CharMovement();
-	void DestroyGhostCam();
-	void PlaceGhostCamera();
-	void CameraPlaceMode();
 
-	bool CameraViewMode;
-
+	//---------------SelectFunctions-------------------//
 	void SelectMode();
 
+	//---------------CameraFunctions-------------------//
+	void CameraPlaceMode();
+	void PlaceGhostCamera();
+	void DestroyGhostCam();
 	bool CheckCameraPlacement(FVector HitLocation);
 
+	void ChangeViewTarget(int CameraIndex);
+
+
+	//---------------PrivateVariables-------------------//
+	
 	bool HoldingInteractButton;
 
-	AActor* SpawnedGhostCamera;
+	AActor * SpawnedGhostCamera;
 	AActor* SpawnedPlayerCamera;
-	
 	APlayerController* PlayerController;
-
 	TArray<AActor*> SpawnedPlayerCameraArray;
+
+
+	
+
+
+
+
+
+	
+
 public:
 	
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables | Animation")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		float InputX;
 
-	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables | Animation")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 		float InputY;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
@@ -168,10 +192,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		int MaxCameras;
 
-	void ChangeViewTarget();
+	
 
 	float Pitch;
 	float Yaw;
+
+	int CameraToChangeTo;
+	bool CameraViewMode;
+
 
 	FVector LineTraceLocation;
 	FRotator LineTraceNormal;
@@ -184,6 +212,5 @@ public:
 	float WalkSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 	float RunSpeed;
-
 
 };

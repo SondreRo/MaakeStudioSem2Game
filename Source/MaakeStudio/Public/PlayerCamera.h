@@ -22,6 +22,8 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 	class USphereComponent* SphereCollider{ nullptr };
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
+		class UStaticMeshComponent* Indicator{ nullptr };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "MyVeriables")
 	UStaticMeshComponent* StaticMesh{ nullptr };

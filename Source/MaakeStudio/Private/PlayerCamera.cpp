@@ -18,6 +18,9 @@ APlayerCamera::APlayerCamera()
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
 	StaticMesh->SetupAttachment(GetRootComponent());
 
+	Indicator = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("Indicator"));
+	Indicator->SetupAttachment(GetRootComponent());
+
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	
 	Camera->SetRelativeLocation(FVector(0, 0, 3));
@@ -42,12 +45,16 @@ void APlayerCamera::Tick(float DeltaTime)
 
 void APlayerCamera::CamSelected()
 {
-	StaticMesh->SetMaterial(0, SelectedMaterial);
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Camselected"));
+	Indicator->SetHiddenInGame(false);
+	
+
 	//StaticMesh->SetMaterialByName()
 }
 
 void APlayerCamera::CamDeselected()
 {
-	StaticMesh->SetMaterial(0, NormalMaterial);
+	Indicator->SetHiddenInGame(true);
+	//StaticMesh->SetMaterial(0, NormalMaterial);
 }
 
