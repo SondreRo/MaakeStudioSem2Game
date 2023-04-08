@@ -27,6 +27,9 @@ APlayerCamera::APlayerCamera()
 	Camera->SetRelativeRotation(FRotator(90, 0, 0));
 	Camera->bUsePawnControlRotation = false;
 	Camera->SetupAttachment(GetRootComponent());
+
+	CameraPitch = 0;
+	CameraYaw = 0;
 }
 
 // Called when the game starts or when spawned
@@ -40,6 +43,12 @@ void APlayerCamera::BeginPlay()
 void APlayerCamera::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
+
+	CameraPitch = FMath::Clamp(CameraPitch, -90.0f, 90.0f);
+	CameraYaw = FMath::Clamp(CameraYaw, -90.0f, 90.0f);
+
+
+	Camera->SetRelativeRotation(FRotator(CameraPitch, CameraYaw, 0));
 
 }
 
@@ -56,5 +65,15 @@ void APlayerCamera::CamDeselected()
 {
 	Indicator->SetHiddenInGame(true);
 	//StaticMesh->SetMaterial(0, NormalMaterial);
+}
+
+void APlayerCamera::AddCameraPitch(float input)
+{
+	CameraPitch += input;
+}
+
+void APlayerCamera::AddCameraYaw(float input)
+{
+	CameraYaw += input;
 }
 

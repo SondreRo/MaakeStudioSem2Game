@@ -5,8 +5,12 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlayerSideCharacter.generated.h"
+class AAIController;
 
 UCLASS()
+
+
+
 class MAAKESTUDIO_API APlayerSideCharacter : public ACharacter
 {
 	GENERATED_BODY()
@@ -26,4 +30,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	void WalkToPoint(FVector inWalkPoint);
+
+	AAIController* PlayerSideController;
 };

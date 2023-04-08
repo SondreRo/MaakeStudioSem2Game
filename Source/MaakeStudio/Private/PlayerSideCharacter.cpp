@@ -3,6 +3,8 @@
 
 #include "PlayerSideCharacter.h"
 
+#include "AIController.h"
+
 // Sets default values
 APlayerSideCharacter::APlayerSideCharacter()
 {
@@ -15,7 +17,7 @@ APlayerSideCharacter::APlayerSideCharacter()
 void APlayerSideCharacter::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	PlayerSideController = Cast<AAIController>(GetController());
 }
 
 // Called every frame
@@ -29,6 +31,18 @@ void APlayerSideCharacter::Tick(float DeltaTime)
 void APlayerSideCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
+
+}
+
+void APlayerSideCharacter::WalkToPoint(FVector inWalkPoint)
+{
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalLocation(inWalkPoint);
+	MoveRequest.SetAcceptanceRadius(15.f);
+
+	FNavPathSharedPtr NavPath;
+
+	PlayerSideController->MoveTo(MoveRequest, &NavPath);
 
 }
 

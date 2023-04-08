@@ -142,7 +142,8 @@ private:
 
 	void ChangeViewTarget(int CameraIndex);
 
-
+	void ShootRayForSideCharacter();
+	bool CheckSideCharacterLineOfSight(class APlayerCamera* CurrentCam);
 	//---------------PrivateVariables-------------------//
 	
 	bool HoldingInteractButton;
@@ -175,9 +176,19 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 		TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty = ECC_Pawn;
 	
+	UPROPERTY(EditAnywhere, Category = "Collision")
+		TEnumAsByte<ECollisionChannel> SideCharacterRayProperty;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
+		class APlayerSideCharacter* ActorToControll;
+
+	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		float RayLength;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
+		float SideCharacterRayLength;
+
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		float CameraMinDistance;
@@ -187,6 +198,9 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 		AActor* SelectedCamera;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
+		AActor* CurrentActiveCamera;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")

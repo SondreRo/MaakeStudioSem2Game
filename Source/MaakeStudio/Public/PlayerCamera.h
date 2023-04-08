@@ -47,4 +47,11 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void CamDeselected();
 
+
+
+	void AddCameraPitch(float input);
+	void AddCameraYaw(float input);
+
+	float CameraPitch;
+	float CameraYaw;
 };

@@ -13,7 +13,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "InputTriggers.h"
 #include "PlayerCamera.h"
-
+#include "PlayerSideCharacter.h"
 
 #include "Engine/World.h"
 
@@ -65,9 +65,13 @@ APlayerCharacter::APlayerCharacter()
 	IsRunning = false;
 
 	SelectedCamera = nullptr;
+	CurrentActiveCamera = nullptr;
+
 
 	CameraViewMode = false;	
 	CameraToChangeTo = 0;
+
+	SideCharacterRayLength = 2000.f;
 
 }
 
@@ -270,7 +274,7 @@ void APlayerCharacter::CameraPlaceMode()
 	//DrawDebugSphere(GetWorld(), LineTraceLocation, 10.f, 4, FColor::Green, false, 1, 0, 1.f);
 	if (CheckCameraPlacement(LineTraceLocation) && LineTraceHitSomething)
 	{
-		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal + FRotator(-90, 0, 0));
+		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal);
 		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
 	}
 	DestroyGhostCam();
@@ -418,6 +422,12 @@ void APlayerCharacter::CameraPitch(const FInputActionValue& input)
 {
 	if (CameraViewMode)
 	{
+		if (CurrentActiveCamera)
+		{
+			Cast<APlayerCamera>(CurrentActiveCamera)->AddCameraPitch(-(input.Get<float>()));
+		}
+
+
 		Pitch = 0;
 		return;
 	}
@@ -428,6 +438,12 @@ void APlayerCharacter::CameraYaw(const FInputActionValue& input)
 {
 	if (CameraViewMode)
 	{
+
+		if (CurrentActiveCamera)
+		{
+			Cast<APlayerCamera>(CurrentActiveCamera)->AddCameraYaw(input.Get<float>());
+		}
+
 		Yaw = 0;
 		return;
 	}
@@ -487,6 +503,13 @@ void APlayerCharacter::RunEnd(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 {
+
+	if (CameraViewMode)
+	{
+		ShootRayForSideCharacter();
+		return;
+	}
+
 	if (!HoldingInteractButton)
 	{
 		HoldingInteractButton = true;
@@ -513,6 +536,12 @@ void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Green, TEXT("Trigger"));
+
+	if (CameraViewMode)
+	{
+		return;
+	}
+
 
 	if (!HoldingInteractButton)
 	{
@@ -642,17 +671,22 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		NewViewTarget = this;
 
 	}
-	else
+	else if (CameraIndex <= SpawnedPlayerCameraArray.Num())
 	{
 		NewViewTarget = SpawnedPlayerCameraArray[CameraIndex];
 	}
-	if (CameraIndex >= SpawnedPlayerCameraArray.Num())
+	
+	if (CameraIndex > SpawnedPlayerCameraArray.Num())
 	{
 		return;
 	}
+
+	if (NewViewTarget)
+	{
+		CurrentActiveCamera = NewViewTarget;
+	}
+
 	
-
-
 
 	
 
@@ -670,6 +704,92 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		true);
 
 
+}
+
+void APlayerCharacter::ShootRayForSideCharacter()
+{
+	if (!CameraViewMode)
+	{
+		return;
+	}
+
+	APlayerCamera* CurrentCamTest;
+
+	if (Cast<APlayerCamera>(CurrentActiveCamera))
+	{
+		CurrentCamTest = Cast<APlayerCamera>(CurrentActiveCamera);
+	}
+	else
+	{
+		return;
+	}
+
+	
+
+	FHitResult Hit;
+	FVector TraceStart = CurrentCamTest->Camera->GetComponentLocation();
+	FVector TraceEnd = TraceStart + (CurrentCamTest->Camera->GetForwardVector() * SideCharacterRayLength);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(CurrentCamTest);
+
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 3.0f);
+
+	if (Hit.GetActor())
+	{
+		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
+
+	}
+
+
+	if (CheckSideCharacterLineOfSight(CurrentCamTest))
+	{
+		if (Hit.ImpactPoint != FVector(0, 0, 0))
+		{
+			Cast<APlayerSideCharacter>(ActorToControll)->WalkToPoint(Hit.ImpactPoint);
+		}
+	}
+
+
+
+
+
+	
+	
+
+	
+}
+
+bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
+{
+
+
+	FHitResult Hit;
+	FVector TraceStart = CurrentCam->Camera->GetComponentLocation();
+	FVector TraceEnd = Cast<APlayerSideCharacter>(ActorToControll)->GetActorLocation();
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(CurrentCam);
+
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+
+	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 3.0f);
+
+
+	if (Hit.GetActor() == ActorToControll)
+	{
+				return true;
+	}
+	else
+	{
+				return false;
+	}
+
+
+
+	return false;
 }
 
 
