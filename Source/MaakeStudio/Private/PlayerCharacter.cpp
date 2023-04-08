@@ -71,7 +71,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraViewMode = false;	
 	CameraToChangeTo = 0;
 
-	SideCharacterRayLength = 2000.f;
+	SideCharacterRayLength = 10000.f;
 
 }
 
