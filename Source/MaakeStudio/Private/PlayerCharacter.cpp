@@ -14,6 +14,7 @@
 #include "InputTriggers.h"
 #include "PlayerCamera.h"
 #include "PlayerSideCharacter.h"
+#include "EngineUtils.h"
 
 #include "Engine/World.h"
 
@@ -94,7 +95,15 @@ void APlayerCharacter::BeginPlay()
 		}
 	}
 
-	Tags.Add(FName("PlayerCharacter"));
+	
+	FindAllActors(GetWorld(), AllActorsToControll);
+
+	if (AllActorsToControll.Num() == 0)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No Side Character Found"));
+	}
+	
+	
 }
 
 // Called every frame
@@ -189,6 +198,8 @@ void APlayerCharacter::SelectMode()
 
 
 }
+
+
 
 void APlayerCharacter::PlaceGhostCamera()
 {
@@ -671,7 +682,7 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		NewViewTarget = this;
 
 	}
-	else if (CameraIndex <= SpawnedPlayerCameraArray.Num())
+	else if (CameraIndex < SpawnedPlayerCameraArray.Num())
 	{
 		NewViewTarget = SpawnedPlayerCameraArray[CameraIndex];
 	}
@@ -705,6 +716,9 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 
 
 }
+
+
+
 
 void APlayerCharacter::ShootRayForSideCharacter()
 {
@@ -748,7 +762,20 @@ void APlayerCharacter::ShootRayForSideCharacter()
 	{
 		if (Hit.ImpactPoint != FVector(0, 0, 0))
 		{
-			Cast<APlayerSideCharacter>(ActorToControll)->WalkToPoint(Hit.ImpactPoint);
+
+			if (AllActorsToControll.Num() == 0)
+			{
+				return;
+			}
+
+			
+			for (int i{}; i < AllActorsToControll.Num(); i++)
+			{
+				
+				Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(Hit.ImpactPoint);
+			}
+
+			
 		}
 	}
 
@@ -764,11 +791,15 @@ void APlayerCharacter::ShootRayForSideCharacter()
 
 bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 {
+	if (AllActorsToControll.Num() == 0)
+	{
+		return false;
+	}
 
 
 	FHitResult Hit;
 	FVector TraceStart = CurrentCam->Camera->GetComponentLocation();
-	FVector TraceEnd = Cast<APlayerSideCharacter>(ActorToControll)->GetActorLocation();
+	FVector TraceEnd = Cast<APlayerSideCharacter>(AllActorsToControll[0])->GetActorLocation();
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(CurrentCam);
@@ -778,7 +809,7 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 3.0f);
 
 
-	if (Hit.GetActor() == ActorToControll)
+	if (Hit.GetActor() == AllActorsToControll[0])
 	{
 				return true;
 	}

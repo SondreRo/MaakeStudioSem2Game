@@ -8,6 +8,7 @@
 
 struct FInputActionValue;
 
+class APlayerSideCharacter;
 
 UCLASS()
 class MAAKESTUDIO_API APlayerCharacter : public ACharacter
@@ -159,8 +160,16 @@ private:
 
 
 
+	template<typename T>
+	void FindAllActors(UWorld* World, TArray<T*>& Out)
+	{
+		for (TActorIterator<T> It(World); It; ++It)
+		{
+			Out.Add(*It);
+		}
+	}
 
-	
+	TArray<APlayerSideCharacter*> AllActorsToControll;
 
 public:
 	
@@ -179,8 +188,7 @@ public:
 	UPROPERTY(EditAnywhere, Category = "Collision")
 		TEnumAsByte<ECollisionChannel> SideCharacterRayProperty;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
-		class APlayerSideCharacter* ActorToControll;
+	
 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
