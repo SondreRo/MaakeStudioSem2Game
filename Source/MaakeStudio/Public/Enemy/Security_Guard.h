@@ -7,6 +7,15 @@
 #include "Security_Guard.generated.h"
 
 class AAIController;
+class UPawnSensingComponent;
+
+UENUM(BlueprintType)
+enum class EEnemyState : uint8
+{
+	Patrolling UMETA(DisplayName = "Patrolling"),
+	Chasing UMETA(DisplayName = "Chasing"),
+	Waiting UMETA(DisplayName = "Waiting")
+};
 
 UCLASS()
 class MAAKESTUDIO_API ASecurity_Guard : public ACharacter
@@ -28,20 +37,51 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//Public Functions
+	UFUNCTION()
+	void TargetSeen(APawn* Target);
+
 	AAIController* EnemyController;
-
-	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
-	AActor* PatrolTarget;
-
-	UPROPERTY(EditInstanceOnly, Category = "AI Navigation")
+	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
 	TArray<AActor*> PatrolTargets;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "AI Navigation")
-	double PatrolRadius = 200.f;
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI NAvigation")
-	bool Playtesting;
+	//Public Variables
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	bool PlayTest = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	bool RandomPatrolling = false;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	float TotalWaitTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	float TotalAggroTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	float WalkSpeed;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
+	float ChaseSpeed;
 
 private:
+	//private Functions
+	void MoveToPoint();
+	void MoveToRandomPoint();
 	bool InTargetRange(AActor* Target, double Radius);
-	void MoveTo();
+	void MoveTo(AActor* Target);
+	void PauseWhenFinished(float DeltaTime);
+	void AggroTimer(float DeltaTime);
+	void ChasingTarget(APawn* Target);
+
+	void AddPatrolTargets();
+
+	AActor* PatrolTarget;
+	AActor* ChaseTarget;
+	UPROPERTY(VisibleAnywhere)
+	UPawnSensingComponent* TargetSensing;
+	EEnemyState EnemyState;
+
+	TArray<AActor*> TestTargets;
+	//private Variables
+	int PatrolTargetNumber;
+	double PatrolRadius;
+	bool Waiting;
+	float WaitTimer;
+	float AggroTime;
 };

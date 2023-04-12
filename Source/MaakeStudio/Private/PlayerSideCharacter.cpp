@@ -18,6 +18,8 @@ void APlayerSideCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 	PlayerSideController = Cast<AAIController>(GetController());
+
+	Tags.Add(FName("test"));
 }
 
 // Called every frame
