@@ -36,7 +36,7 @@ void AInteractable::Tick(float DeltaTime)
 
 void AInteractable::Interacted()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Hello From Interacteble"));
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello From Interacteble"));
 
 	//Do Stuff
 

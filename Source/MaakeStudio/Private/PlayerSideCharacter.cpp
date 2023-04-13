@@ -77,7 +77,7 @@ void APlayerSideCharacter::SoftReset()
 
 void APlayerSideCharacter::Interact()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue, TEXT("Hello from Side Character"));
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("Hello from Side Character"));
 	Jump();
 
 	if (OverlappingActors.IsEmpty())

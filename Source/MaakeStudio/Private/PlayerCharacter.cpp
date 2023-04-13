@@ -101,7 +101,7 @@ void APlayerCharacter::BeginPlay()
 
 	if (AllActorsToControll.Num() == 0)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No Side Character Found"));
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("No Side Character Found"));
 	}
 	
 	SpawnLocation = GetActorLocation();
@@ -188,7 +188,7 @@ void APlayerCharacter::SelectMode()
 
 	if (HasHitCamera)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("HitCamera"));
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("HitCamera"));
 		SelectedCamera = Hit.GetActor();
 		Cast<APlayerCamera>(SelectedCamera)->CamSelected();
 	}
@@ -587,6 +587,13 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 	}
 
 
+	Timer++;
+	if (Timer > 100)
+	{
+		Timer = 0;
+	}
+
+
 	if (!HoldingInteractButton)
 	{
 		HoldingInteractButton = true;
@@ -616,6 +623,8 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 {
+	Timer = 0;
+
 	DestroyGhostCam();
 	if (HoldingInteractButton)
 	{
@@ -641,7 +650,7 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 
 void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue, TEXT("Hello"));
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("Hello"));
 
 	if (AllActorsToControll.IsEmpty())
 	{
