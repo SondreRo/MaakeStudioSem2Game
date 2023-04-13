@@ -29,6 +29,7 @@ ASecurity_Guard::ASecurity_Guard()
 	TotalAggroTime = 2;
 	WalkSpeed = 200;
 	ChaseSpeed = 400;
+	CatchedPlayer = false;
 }
 
 // Called when the game starts or when spawned
@@ -55,6 +56,16 @@ void ASecurity_Guard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+
+
+	if (ChaseTarget != nullptr && InTargetRange(ChaseTarget, 200) && CatchedPlayer == false)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("In Range"));
+		CatchedPlayer = true;
+	}
+
+
+
 	if (EnemyState == EEnemyState::Patrolling)
 	{
 		RandomPatrolling == true ? MoveToRandomPoint() : MoveToPoint();
@@ -62,11 +73,17 @@ void ASecurity_Guard::Tick(float DeltaTime)
 	else if (EnemyState == EEnemyState::Chasing)
 	{
 		AggroTimer(DeltaTime);
+		
 	}
 	else
 	{
 		PauseWhenFinished(DeltaTime);
+		
 	}
+
+
+	
+
 }
 
 // Called to bind functionality to input
@@ -126,8 +143,15 @@ void ASecurity_Guard::MoveToRandomPoint()
 
 bool ASecurity_Guard::InTargetRange(AActor* Target, double Radius)
 {
+	if (Target == nullptr)
+	{
+				return false;
+	}
+
+
 	const double DistanceToTarget = (Target->GetActorLocation() - this->GetActorLocation()).Size();
 
+	
 	return DistanceToTarget <= Radius;
 }
 

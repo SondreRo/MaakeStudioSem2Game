@@ -73,7 +73,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraToChangeTo = 0;
 
 	SideCharacterRayLength = 10000.f;
-
+	
 }
 
 // Called when the game starts or when spawned

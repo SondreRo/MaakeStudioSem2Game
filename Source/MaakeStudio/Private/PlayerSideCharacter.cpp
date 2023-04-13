@@ -41,6 +41,8 @@ void APlayerSideCharacter::WalkToPoint(FVector inWalkPoint)
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(inWalkPoint);
 	MoveRequest.SetAcceptanceRadius(15.f);
+	//MoveRequest.SetCanStrafe(false);
+
 
 	FNavPathSharedPtr NavPath;
 

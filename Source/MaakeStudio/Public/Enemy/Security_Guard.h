@@ -84,4 +84,5 @@ private:
 	bool Waiting;
 	float WaitTimer;
 	float AggroTime;
+	bool CatchedPlayer;
 };
