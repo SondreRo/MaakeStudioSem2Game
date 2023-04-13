@@ -140,9 +140,7 @@ bool ASecurity_Guard::InTargetRange(AActor* Target, double Radius)
 				return false;
 	}
 
-
 	const double DistanceToTarget = (Target->GetActorLocation() - this->GetActorLocation()).Size();
-
 	
 	return DistanceToTarget <= Radius;
 }
