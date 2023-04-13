@@ -70,6 +70,7 @@ private:
 	void ChasingTarget(APawn* Target);
 
 	void AddPatrolTargets();
+	void SoftReset();
 
 	AActor* PatrolTarget;
 	AActor* ChaseTarget;
@@ -79,6 +80,7 @@ private:
 
 	TArray<AActor*> TestTargets;
 	//private Variables
+	FVector SpawnLocation;
 	int PatrolTargetNumber;
 	double PatrolRadius;
 	bool Waiting;

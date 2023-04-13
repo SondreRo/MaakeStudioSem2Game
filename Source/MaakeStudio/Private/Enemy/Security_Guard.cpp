@@ -19,8 +19,6 @@ ASecurity_Guard::ASecurity_Guard()
 	TargetSensing->SetPeripheralVisionAngle(45.f);
 	TargetSensing->bOnlySensePlayers = false;
 
-	EnemyState = EEnemyState::Patrolling;
-
 	PatrolTargetNumber = 0;
 	PatrolRadius = 100;
 	WaitTimer = 0;
@@ -38,14 +36,16 @@ void ASecurity_Guard::BeginPlay()
 	Super::BeginPlay();
 
 	EnemyController = Cast<AAIController>(GetController());
+	SpawnLocation = GetActorLocation();
+	EnemyState = EEnemyState::Patrolling;
 
-	if (TargetSensing)
+	if (TargetSensing != nullptr)
 	{
 		TargetSensing->OnSeePawn.AddDynamic(this, &ASecurity_Guard::TargetSeen);
 	}
 
 	PatrolTarget = PatrolTargets[0];
-	if (PatrolTarget)
+	if (PatrolTarget != nullptr)
 	{
 		MoveTo(PatrolTarget);
 	}
@@ -56,15 +56,11 @@ void ASecurity_Guard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-
-
 	if (ChaseTarget != nullptr && InTargetRange(ChaseTarget, 200) && CatchedPlayer == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("In Range"));
 		CatchedPlayer = true;
 	}
-
-
 
 	if (EnemyState == EEnemyState::Patrolling)
 	{
@@ -75,15 +71,10 @@ void ASecurity_Guard::Tick(float DeltaTime)
 		AggroTimer(DeltaTime);
 		
 	}
-	else
+	else if (EnemyState == EEnemyState::Waiting)
 	{
 		PauseWhenFinished(DeltaTime);
-		
 	}
-
-
-	
-
 }
 
 // Called to bind functionality to input
@@ -229,6 +220,22 @@ void ASecurity_Guard::AddPatrolTargets()
 			Actor->GetAllChildActors(TestTargets);
 			break;
 		}
+	}
+}
+
+void ASecurity_Guard::SoftReset()
+{
+	SetActorLocation(SpawnLocation);
+	PatrolTarget = PatrolTargets[0];
+	PatrolTargetNumber = 0;
+	ChaseTarget = nullptr;
+	EnemyState = EEnemyState::Patrolling;
+	CatchedPlayer = false;
+	AggroTime = 0;
+
+	if (PatrolTarget != nullptr)
+	{
+		MoveTo(PatrolTarget);
 	}
 }
 
