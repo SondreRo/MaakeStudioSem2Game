@@ -650,7 +650,7 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 
 void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("Hello"));
+	
 
 	if (AllActorsToControll.IsEmpty())
 	{
@@ -659,6 +659,7 @@ void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 
 	for (int i{}; i < AllActorsToControll.Num(); i++)
 	{
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
 		AllActorsToControll[i]->Interact();
 	}
 

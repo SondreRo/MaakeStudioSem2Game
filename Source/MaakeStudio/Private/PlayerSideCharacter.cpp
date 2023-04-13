@@ -17,8 +17,7 @@ APlayerSideCharacter::APlayerSideCharacter()
 
 	//OverlappingActors.Init(nullptr, 10);
 
-	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapBegin);
-	SphereCollider->OnComponentEndOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapEnd);
+	
 }
 
 // Called when the game starts or when spawned
@@ -35,9 +34,9 @@ void APlayerSideCharacter::BeginPlay()
 	SpawnLocation = GetActorLocation();
 	SpawnRotation = GetActorRotation();
 
+	
 	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapBegin);
 	SphereCollider->OnComponentEndOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapEnd);
-
 }
 
 // Called every frame
@@ -87,6 +86,9 @@ void APlayerSideCharacter::Interact()
 
 	for (int i{}; i < OverlappingActors.Num(); i++)
 	{
+		FString ActorName = OverlappingActors[i]->GetName();
+
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, ActorName);
 		OverlappingActors[i]->Interacted();
 	}
 }
@@ -103,6 +105,10 @@ void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, A
 	AInteractable* InteractableActor = Cast<AInteractable>(OtherActor);
 
 	if (InteractableActor == nullptr)
+	{
+				return;
+	}
+	if (OverlappingActors.Contains(InteractableActor))
 	{
 				return;
 	}
