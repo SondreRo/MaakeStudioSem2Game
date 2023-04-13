@@ -33,4 +33,14 @@ public:
 	void WalkToPoint(FVector inWalkPoint);
 
 	AAIController* PlayerSideController;
+
+	UFUNCTION(CallInEditor, BlueprintCallable)
+		void SoftReset();
+
+
+private:
+
+	FVector SpawnLocation;
+	FRotator SpawnRotation;
+
 };

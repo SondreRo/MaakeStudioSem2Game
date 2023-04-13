@@ -73,6 +73,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraToChangeTo = 0;
 
 	SideCharacterRayLength = 10000.f;
+
 	
 }
 
@@ -103,7 +104,8 @@ void APlayerCharacter::BeginPlay()
 		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No Side Character Found"));
 	}
 	
-	
+	SpawnLocation = GetActorLocation();
+	SpawnRotation = GetActorRotation();
 }
 
 // Called every frame
@@ -369,6 +371,22 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 }
 
 
+void APlayerCharacter::SoftReset(bool DeleteCameras)
+{
+	SetActorLocation(SpawnLocation);
+	SetActorRotation(SpawnRotation);
+
+	GetCharacterMovement()->StopMovementImmediately();
+
+	if (DeleteCameras)
+	{
+		DeleteAllCameras();
+	}
+		
+	
+
+}
+
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)
 {
 	if (CameraViewMode)
@@ -426,6 +444,19 @@ void APlayerCharacter::MovementRightLeftStarted(const FInputActionValue& input)
 		ChangeViewTarget(CameraToChangeTo);
 	}
 
+	
+}
+
+void APlayerCharacter::DeleteAllCameras()
+{
+	if (SpawnedPlayerCameraArray.Num() > 0)
+	{
+		for (int i = 0; i < SpawnedPlayerCameraArray.Num(); i++)
+		{
+			SpawnedPlayerCameraArray[i]->Destroy();
+		}
+		SpawnedPlayerCameraArray.Empty();
+	}
 	
 }
 

@@ -94,6 +94,10 @@ public:
 	TSubclassOf<AActor> PlayerCamera;
 
 
+	UFUNCTION(CallInEditor, BlueprintCallable)
+		void SoftReset(bool DeleteCameras);
+	
+
 private:
 
 	//---------------MovementInputs-------------------//
@@ -127,7 +131,7 @@ private:
 	void MovementRightLeftStarted(const FInputActionValue& input);
 
 
-
+	void DeleteAllCameras();
 		
 	//---------------MovementFunctions-------------------//
 	void CharMovement();
@@ -234,5 +238,10 @@ public:
 	float WalkSpeed;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 	float RunSpeed;
+
+
+	//---------------Reset Variables-------------------//
+	FVector SpawnLocation;
+	FRotator SpawnRotation;
 
 };

@@ -20,6 +20,9 @@ void APlayerSideCharacter::BeginPlay()
 	PlayerSideController = Cast<AAIController>(GetController());
 
 	Tags.Add(FName("test"));
+
+	SpawnLocation = GetActorLocation();
+	SpawnRotation = GetActorRotation();
 }
 
 // Called every frame
@@ -48,5 +51,12 @@ void APlayerSideCharacter::WalkToPoint(FVector inWalkPoint)
 
 	PlayerSideController->MoveTo(MoveRequest, &NavPath);
 
+}
+
+void APlayerSideCharacter::SoftReset()
+{
+	SetActorLocation(SpawnLocation);
+	SetActorRotation(SpawnRotation);
+	WalkToPoint(SpawnLocation);
 }
 
