@@ -69,6 +69,10 @@ public:
 	class UInputAction* MainActionInput;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
+		class UInputAction* InteractInput;
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
 		class UInputAction* CameraModeToggleInput;
 
 	//Keyboard Number Buttons
@@ -116,6 +120,9 @@ private:
 	void MainInteractStarted(const FInputActionValue& input);
 	void MainInteractTrigger(const FInputActionValue& input);
 	void MainInteractEnd(const FInputActionValue& input);
+
+	void InteractStarted(const FInputActionValue& input);
+
 
 	void DeleteTrigger(const FInputActionValue& input);
 

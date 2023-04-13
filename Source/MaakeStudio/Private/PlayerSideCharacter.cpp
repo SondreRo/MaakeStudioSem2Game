@@ -2,6 +2,8 @@
 
 
 #include "PlayerSideCharacter.h"
+#include "components/SphereComponent.h"
+#include "Interactable.h"
 
 #include "AIController.h"
 
@@ -10,7 +12,13 @@ APlayerSideCharacter::APlayerSideCharacter()
 {
  	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
+	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollider"));
+	SphereCollider->SetupAttachment(GetRootComponent());
 
+	//OverlappingActors.Init(nullptr, 10);
+
+	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapBegin);
+	SphereCollider->OnComponentEndOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapEnd);
 }
 
 // Called when the game starts or when spawned
@@ -19,10 +27,17 @@ void APlayerSideCharacter::BeginPlay()
 	Super::BeginPlay();
 	PlayerSideController = Cast<AAIController>(GetController());
 
+	
+
+
 	Tags.Add(FName("test"));
 
 	SpawnLocation = GetActorLocation();
 	SpawnRotation = GetActorRotation();
+
+	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapBegin);
+	SphereCollider->OnComponentEndOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapEnd);
+
 }
 
 // Called every frame
@@ -59,4 +74,58 @@ void APlayerSideCharacter::SoftReset()
 	SetActorRotation(SpawnRotation);
 	WalkToPoint(SpawnLocation);
 }
+
+void APlayerSideCharacter::Interact()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue, TEXT("Hello from Side Character"));
+	Jump();
+
+	if (OverlappingActors.IsEmpty())
+	{
+		return;
+	}
+
+	for (int i{}; i < OverlappingActors.Num(); i++)
+	{
+		OverlappingActors[i]->Interacted();
+	}
+}
+
+void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	//if (ActorHasTag("Interacteble"))
+	//{
+	//	OverlappingActors.Add(OtherActor);
+	//}
+
+	
+
+	AInteractable* InteractableActor = Cast<AInteractable>(OtherActor);
+
+	if (InteractableActor == nullptr)
+	{
+				return;
+	}
+
+	OverlappingActors.Add(InteractableActor);
+	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("IHIT SOMETHING"));
+}
+
+void APlayerSideCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
+{
+
+	AInteractable* InteractableActor = Cast<AInteractable>(OtherActor);
+
+	if (InteractableActor == nullptr)
+	{
+		return;
+	}
+
+	if (OverlappingActors.Contains(InteractableActor) )
+	{
+		OverlappingActors.RemoveSwap(InteractableActor, true);
+	}
+}
+
+
 

@@ -4,7 +4,7 @@
 #include "PlayerCharacter.h"
 
 
-
+#include "CachedGeometry.h"
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -356,6 +356,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Completed, this, &APlayerCharacter::MainInteractEnd);
 
 
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
+
 		//Delete
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
 
@@ -635,6 +637,22 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello"));
 	}
 	
+}
+
+void APlayerCharacter::InteractStarted(const FInputActionValue& input)
+{
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Blue, TEXT("Hello"));
+
+	if (AllActorsToControll.IsEmpty())
+	{
+		return;
+	}
+
+	for (int i{}; i < AllActorsToControll.Num(); i++)
+	{
+		AllActorsToControll[i]->Interact();
+	}
+
 }
 
 void APlayerCharacter::SwapToolOne(const FInputActionValue& input)

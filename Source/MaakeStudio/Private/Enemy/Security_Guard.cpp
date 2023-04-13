@@ -60,6 +60,7 @@ void ASecurity_Guard::Tick(float DeltaTime)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("In Range"));
 		CatchedPlayer = true;
+		Jump();
 	}
 
 	if (EnemyState == EEnemyState::Patrolling)
