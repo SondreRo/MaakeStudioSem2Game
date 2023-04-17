@@ -31,6 +31,12 @@ public:
 	virtual void Tick(float DeltaTime) override;
 
 	UFUNCTION()
-	void Interacted();
+	virtual void Interacted();
+
+	UFUNCTION()
+	void Bolle();
+
+	UFUNCTION(BlueprintCallable)
+	void SoftReset();
 
 };

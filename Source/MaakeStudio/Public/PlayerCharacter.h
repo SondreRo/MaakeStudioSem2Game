@@ -100,7 +100,12 @@ public:
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
 		void SoftReset(bool DeleteCameras);
-	
+
+	float Update;
+
+	UPROPERTY(BlueprintReadWrite)
+	float Timer;
+
 
 private:
 

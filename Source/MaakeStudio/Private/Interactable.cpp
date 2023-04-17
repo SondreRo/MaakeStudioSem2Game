@@ -36,10 +36,19 @@ void AInteractable::Tick(float DeltaTime)
 
 void AInteractable::Interacted()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Red, TEXT("Hello From Interacteble"));
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM THE MASTER"));
 
 	//Do Stuff
 
 
+}
+
+void AInteractable::Bolle()
+{
+	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Bolle"));
+}
+
+void AInteractable::SoftReset()
+{
 }
 
