@@ -2,7 +2,10 @@
 
 
 #include "Interactable.h"
+#include "PlayerCharacter.h"
 #include "components/SphereComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "EngineUtils.h"
 
 // Sets default values
 AInteractable::AInteractable()
@@ -24,7 +27,7 @@ AInteractable::AInteractable()
 void AInteractable::BeginPlay()
 {
 	Super::BeginPlay();
-	
+	FindAllActors(GetWorld(), AllPlayers);
 }
 
 // Called every frame
@@ -40,6 +43,7 @@ void AInteractable::Interacted()
 
 	//Do Stuff
 
+	
 
 }
 
@@ -50,5 +54,36 @@ void AInteractable::Bolle()
 
 void AInteractable::SoftReset()
 {
+}
+
+void AInteractable::CastToPlayer()
+{
+	
+	
+	if(AllPlayers.IsEmpty())
+	{
+		GEngine->AddOnScreenDebugMessage(-1,10,FColor::Red,TEXT("No player character"));
+		UE_LOG(LogTemp,Warning,TEXT("No player character"))
+		return;
+	}
+
+	if(AllPlayers.Num() > 1)
+	{
+		GEngine->AddOnScreenDebugMessage(-1,10,FColor::Red,TEXT("More then 1 player character"));
+		UE_LOG(LogTemp,Warning,TEXT("More then 1 player character"))
+		return;
+	}
+	
+	
+	for (int i{}; i < AllPlayers.Num(); i++)
+	{
+		Player = Cast<APlayerCharacter>(AllPlayers[i]);
+
+	
+	
+		
+	}
+	
+	
 }
 

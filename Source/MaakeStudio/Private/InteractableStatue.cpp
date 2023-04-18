@@ -3,11 +3,21 @@
 
 #include "InteractableStatue.h"
 
+#include "PlayerCharacter.h"
+
 void AInteractableStatue::Interacted()
 {
 	//AInteractable::Interacted();
 
 	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM SLAVE"));
+	
+}
 
+void AInteractableStatue::CastToPlayer()
+{
+	Super::CastToPlayer();
+
+	Player->AddGameScore(100);	
+		
 }
 

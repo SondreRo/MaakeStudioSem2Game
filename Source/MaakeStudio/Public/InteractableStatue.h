@@ -18,5 +18,5 @@ class MAAKESTUDIO_API AInteractableStatue : public AInteractable
 
 	void Interacted() override;
 
-
+	void CastToPlayer() override;
 };

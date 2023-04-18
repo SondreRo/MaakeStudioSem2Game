@@ -6,6 +6,8 @@
 #include "GameFramework/Actor.h"
 #include "Interactable.generated.h"
 
+
+
 UCLASS()
 class MAAKESTUDIO_API AInteractable : public AActor
 {
@@ -39,4 +41,20 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SoftReset();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void CastToPlayer();
+
+
+	template<typename T>
+		void FindAllActors(UWorld* World, TArray<T*>& Out)
+	{
+		for (TActorIterator<T> It(World); It; ++It)
+		{
+			Out.Add(*It);
+		}
+	}
+
+	
+	TArray<class APlayerCharacter*> AllPlayers;
+	APlayerCharacter* Player;
 };

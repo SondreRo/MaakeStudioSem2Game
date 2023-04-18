@@ -389,6 +389,15 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 
 }
 
+void APlayerCharacter::AddGameScore(float inScore)
+{
+	GameScore += inScore;
+
+	FString textToPrint = FString::SanitizeFloat(GameScore);
+	
+	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
+}
+
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)
 {
 	if (CameraViewMode)
