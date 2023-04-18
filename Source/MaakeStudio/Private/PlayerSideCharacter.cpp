@@ -3,7 +3,7 @@
 
 #include "PlayerSideCharacter.h"
 #include "components/SphereComponent.h"
-#include "Interactable.h"
+#include "Interactables/Interactable.h"
 
 #include "AIController.h"
 
