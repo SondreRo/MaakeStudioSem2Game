@@ -39,4 +39,6 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void SoftReset();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "GameScore")
+	float GameScore;
 };
