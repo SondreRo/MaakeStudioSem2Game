@@ -394,7 +394,7 @@ void APlayerCharacter::AddGameScore(float inScore)
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
-	
+	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
 }
 

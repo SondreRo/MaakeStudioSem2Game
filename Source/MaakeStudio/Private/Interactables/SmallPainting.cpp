@@ -3,6 +3,8 @@
 
 #include "Interactables/SmallPainting.h"
 
+#include "PlayerCharacter.h"
+
 ASmallPainting::ASmallPainting()
 {
 	PrimaryActorTick.bCanEverTick = true;
@@ -29,16 +31,21 @@ void ASmallPainting::Interacted()
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+
+	CastToPlayer();
 }
 
 void ASmallPainting::SoftReset()
 {
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+
+	
 }
 
 void ASmallPainting::CastToPlayer()
 {
 	AInteractable::CastToPlayer();
 
+	Player->AddGameScore(GameScore);
 }
