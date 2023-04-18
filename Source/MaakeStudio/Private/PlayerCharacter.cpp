@@ -855,6 +855,7 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 		return false;
 	}
 
+	
 
 	FHitResult Hit;
 	FVector TraceStart = CurrentCam->Camera->GetComponentLocation();
@@ -876,8 +877,6 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 	{
 				return false;
 	}
-
-
 
 	return false;
 }
