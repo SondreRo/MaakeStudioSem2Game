@@ -3,6 +3,7 @@
 
 #include "Interactables/Interactable.h"
 #include "components/SphereComponent.h"
+#include "PlayerCharacter.h"
 
 // Sets default values
 AInteractable::AInteractable()
@@ -38,17 +39,31 @@ void AInteractable::Interacted()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM THE MASTER"));
 
-	//Do Stuff
-
-
-}
-
-void AInteractable::Bolle()
-{
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Bolle"));
 }
 
 void AInteractable::SoftReset()
 {
+	
 }
 
+void AInteractable::CastToPlayer()
+{
+	if (AllPlayers.IsEmpty())
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No player character"));
+		UE_LOG(LogTemp, Warning, TEXT("No player character"))
+			return;
+	}
+
+	if (AllPlayers.Num() > 1)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("More then 1 player character"));
+		UE_LOG(LogTemp, Warning, TEXT("More then 1 player character"))
+			return;
+	}
+
+	for (int i{}; i < AllPlayers.Num(); i++)
+	{
+		Player = Cast<APlayerCharacter>(AllPlayers[i]);
+	}
+}

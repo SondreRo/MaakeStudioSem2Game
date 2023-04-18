@@ -19,7 +19,6 @@ public:
 	class UStaticMeshComponent* InteractableMesh;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-
 	class USphereComponent* SphereCollider;
 
 protected:
@@ -30,15 +29,30 @@ public:
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
 
-	UFUNCTION()
+	UFUNCTION(BlueprintCallable)
 	virtual void Interacted();
 
-	UFUNCTION()
-	void Bolle();
+	UFUNCTION(blueprintcallable)
+	virtual void SoftReset();
 
 	UFUNCTION(BlueprintCallable)
-	void SoftReset();
+	virtual void CastToPlayer();
 
+	template<typename T>
+	void FindAllActors(UWorld* World, TArray<T*>& Out)
+	{
+		for (TActorIterator<T> It(World); It; ++It)
+		{
+			Out.Add(*It);
+		}
+	}
+
+	TArray<class APlayerCharacter*> AllPlayers;
+	APlayerCharacter* Player;
+
+	//Public Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, category = "GameScore")
 	float GameScore;
+
+	FVector SpawnLocation;
 };

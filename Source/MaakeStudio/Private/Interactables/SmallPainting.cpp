@@ -36,3 +36,9 @@ void ASmallPainting::SoftReset()
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
 }
+
+void ASmallPainting::CastToPlayer()
+{
+	AInteractable::CastToPlayer();
+
+}
