@@ -95,7 +95,6 @@ void APlayerCharacter::BeginPlay()
 
 		}
 	}
-
 	
 	FindAllActors(GetWorld(), AllActorsToControll);
 
@@ -106,6 +105,8 @@ void APlayerCharacter::BeginPlay()
 	
 	SpawnLocation = GetActorLocation();
 	SpawnRotation = GetActorRotation();
+
+	Tags.Add(FName("PlayerCharacter"));
 }
 
 // Called every frame
@@ -387,6 +388,15 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 		
 	
 
+}
+
+void APlayerCharacter::AddGameScore(float inScore)
+{
+	GameScore += inScore;
+
+	FString textToPrint = FString::SanitizeFloat(GameScore);
+	
+	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
 }
 
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)
@@ -876,8 +886,6 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 	{
 				return false;
 	}
-
-
 
 	return false;
 }

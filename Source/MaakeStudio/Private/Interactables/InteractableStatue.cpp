@@ -14,7 +14,7 @@ void AInteractableStatue::BeginPlay()
 {
 	Super::BeginPlay();
 
-	SpawnLocation() = GetActorLocation();
+	SpawnLocation = GetActorLocation();
 }
 
 void AInteractableStatue::Tick(float DeltaTime)
@@ -36,4 +36,9 @@ void AInteractableStatue::SoftReset()
 {
 	SetActorHiddenInGame(false);
 	SetActorEnableCollision(true);
+}
+
+void AInteractableStatue::CastToPlayer()
+{
+	AInteractable::CastToPlayer();
 }

@@ -99,8 +99,11 @@ public:
 
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
-		void SoftReset(bool DeleteCameras);
+	void SoftReset(bool DeleteCameras);
 
+	UFUNCTION(CallInEditor, BlueprintCallable)
+	void AddGameScore(float inScore);
+	
 	float Update;
 
 	UPROPERTY(BlueprintReadWrite)
@@ -170,12 +173,6 @@ private:
 	APlayerController* PlayerController;
 	TArray<AActor*> SpawnedPlayerCameraArray;
 
-
-	
-
-
-
-
 	template<typename T>
 	void FindAllActors(UWorld* World, TArray<T*>& Out)
 	{
@@ -190,45 +187,46 @@ private:
 public:
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float InputX;
+	float InputX;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		float InputY;
+	float InputY;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
-		TEnumAsByte<ECollisionChannel> TraceChannelProperty;
+	TEnumAsByte<ECollisionChannel> TraceChannelProperty;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
-		TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty = ECC_Pawn;
+	TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty = ECC_Pawn;
 	
 	UPROPERTY(EditAnywhere, Category = "Collision")
-		TEnumAsByte<ECollisionChannel> SideCharacterRayProperty;
+	TEnumAsByte<ECollisionChannel> SideCharacterRayProperty;
 
-	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|Score")
+	float GameScore;
 
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
-		float RayLength;
+	float RayLength;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
-		float SideCharacterRayLength;
+	float SideCharacterRayLength;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
-		float CameraMinDistance;
+	float CameraMinDistance;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
-		int ToolSelected;
+	int ToolSelected;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
-		AActor* SelectedCamera;
+	AActor* SelectedCamera;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
-		AActor* CurrentActiveCamera;
+	AActor* CurrentActiveCamera;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
-		int MaxCameras;
+	int MaxCameras;
 
 	
 

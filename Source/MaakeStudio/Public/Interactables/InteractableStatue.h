@@ -3,7 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Interactable.h"
+#include "Interactables/Interactable.h"
 #include "InteractableStatue.generated.h"
 
 /**
@@ -23,10 +23,11 @@ protected:
 public:
 	virtual void Tick(float DeltaTime) override;
 
-	void Interacted() override;
+	virtual void Interacted() override;
 
-	UFUNCTION()
-	void SoftReset();
+	virtual void CastToPlayer() override;
+
+	virtual void SoftReset() override;
+
 private:
-	FVector SpawnLocation();
 };
