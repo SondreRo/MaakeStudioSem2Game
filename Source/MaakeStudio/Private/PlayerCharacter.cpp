@@ -74,7 +74,10 @@ APlayerCharacter::APlayerCharacter()
 
 	SideCharacterRayLength = 10000.f;
 
-	
+	SeenPlacingCamera = false;
+	TotalSusTime = 2;
+	SusTimer = 0;
+	CanInteract = false;
 }
 
 // Called when the game starts or when spawned
@@ -119,6 +122,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	AddControllerYawInput(Yaw);
 	AddControllerPitchInput(Pitch);
+
+	SeenPlacingCameraTimer(DeltaTime);
 
 	/*float velocity = GetVelocity().Length();
 	FString TheFloatStr = FString::SanitizeFloat(velocity);
@@ -165,17 +170,6 @@ void APlayerCharacter::SelectMode()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, SelectTraceChannelProperty, QueryParams);
-
-	/*DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-	UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
-
-	if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
-	{
-		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
-	}
-	else {
-		UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
-	}*/
 
 	bool HasHitCamera = false;
 	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("Ray"));
@@ -290,7 +284,11 @@ void APlayerCharacter::CameraPlaceMode()
 	{
 		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal);
 		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
+
+		Tags.Add(FName("Sus"));
+		SeenPlacingCamera = true;
 	}
+
 	DestroyGhostCam();
 }
 
@@ -358,6 +356,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Triggered, this, &APlayerCharacter::InteractTrigger);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Completed, this, &APlayerCharacter::InteractEnd);
 
 		//Delete
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
@@ -395,7 +395,7 @@ void APlayerCharacter::AddGameScore(float inScore)
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
-	
+	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
 }
 
@@ -596,14 +596,6 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 		return;
 	}
 
-
-	Timer++;
-	if (Timer > 100)
-	{
-		Timer = 0;
-	}
-
-
 	if (!HoldingInteractButton)
 	{
 		HoldingInteractButton = true;
@@ -661,18 +653,34 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
 	
+}
 
-	if (AllActorsToControll.IsEmpty())
+void APlayerCharacter::InteractTrigger(const FInputActionValue& input)
+{
+	if (!CanInteract)
 	{
 		return;
 	}
-
-	for (int i{}; i < AllActorsToControll.Num(); i++)
+	Timer++;
+	if (Timer > 100)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
-		AllActorsToControll[i]->Interact();
-	}
+		if (AllActorsToControll.IsEmpty())
+		{
+			return;
+		}
 
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
+			AllActorsToControll[i]->Interact();
+		}
+		Timer = 0;
+	}
+}
+
+void APlayerCharacter::InteractEnd(const FInputActionValue& input)
+{
+	Timer = 0;
 }
 
 void APlayerCharacter::SwapToolOne(const FInputActionValue& input)
@@ -836,26 +844,13 @@ void APlayerCharacter::ShootRayForSideCharacter()
 			{
 				return;
 			}
-
 			
 			for (int i{}; i < AllActorsToControll.Num(); i++)
 			{
-				
 				Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(Hit.ImpactPoint);
 			}
-
-			
 		}
 	}
-
-
-
-
-
-	
-	
-
-	
 }
 
 bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
@@ -882,12 +877,23 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 	{
 				return true;
 	}
-	else
-	{
-				return false;
-	}
 
 	return false;
 }
 
+void APlayerCharacter::SeenPlacingCameraTimer(float DeltaTime)
+{
+	if (SeenPlacingCamera == false)
+	{
+		return;
+	}
 
+	SusTimer += DeltaTime;
+
+	if (SusTimer >= TotalSusTime)
+	{
+		SusTimer = 0;
+		Tags.RemoveSingle(FName("Sus"));
+		SeenPlacingCamera = false;
+	}
+}

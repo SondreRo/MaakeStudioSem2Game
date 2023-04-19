@@ -2,6 +2,7 @@
 
 
 #include "Interactables/SmallPainting.h"
+#include "PlayerCharacter.h"
 
 ASmallPainting::ASmallPainting()
 {
@@ -29,6 +30,8 @@ void ASmallPainting::Interacted()
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+
+	CastToPlayer();
 }
 
 void ASmallPainting::SoftReset()
@@ -41,4 +44,5 @@ void ASmallPainting::CastToPlayer()
 {
 	AInteractable::CastToPlayer();
 
+	Player->AddGameScore(GameScore);
 }
