@@ -104,7 +104,8 @@ public:
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	void AddGameScore(float inScore);
 	
-	float Update;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CanInteract;
 
 	UPROPERTY(BlueprintReadWrite)
 	float Timer;
@@ -130,6 +131,8 @@ private:
 	void MainInteractEnd(const FInputActionValue& input);
 
 	void InteractStarted(const FInputActionValue& input);
+	void InteractTrigger(const FInputActionValue& input);
+	void InteractEnd(const FInputActionValue& input);
 
 
 	void DeleteTrigger(const FInputActionValue& input);
@@ -169,7 +172,6 @@ private:
 	void SeenPlacingCameraTimer(float DeltaTime);
 
 	//---------------PrivateVariables-------------------//
-	
 	bool HoldingInteractButton;
 	bool SeenPlacingCamera;
 	float SusTimer;

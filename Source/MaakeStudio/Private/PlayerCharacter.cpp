@@ -77,6 +77,7 @@ APlayerCharacter::APlayerCharacter()
 	SeenPlacingCamera = false;
 	TotalSusTime = 2;
 	SusTimer = 0;
+	CanInteract = false;
 }
 
 // Called when the game starts or when spawned
@@ -355,6 +356,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Triggered, this, &APlayerCharacter::InteractTrigger);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Completed, this, &APlayerCharacter::InteractEnd);
 
 		//Delete
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
@@ -392,7 +395,7 @@ void APlayerCharacter::AddGameScore(float inScore)
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
-	
+	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
 }
 
@@ -593,14 +596,6 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 		return;
 	}
 
-
-	Timer++;
-	if (Timer > 100)
-	{
-		Timer = 0;
-	}
-
-
 	if (!HoldingInteractButton)
 	{
 		HoldingInteractButton = true;
@@ -658,18 +653,34 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
 	
+}
 
-	if (AllActorsToControll.IsEmpty())
+void APlayerCharacter::InteractTrigger(const FInputActionValue& input)
+{
+	if (!CanInteract)
 	{
 		return;
 	}
-
-	for (int i{}; i < AllActorsToControll.Num(); i++)
+	Timer++;
+	if (Timer > 100)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
-		AllActorsToControll[i]->Interact();
-	}
+		if (AllActorsToControll.IsEmpty())
+		{
+			return;
+		}
 
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
+			AllActorsToControll[i]->Interact();
+		}
+		Timer = 0;
+	}
+}
+
+void APlayerCharacter::InteractEnd(const FInputActionValue& input)
+{
+	Timer = 0;
 }
 
 void APlayerCharacter::SwapToolOne(const FInputActionValue& input)
@@ -869,7 +880,6 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 
 	return false;
 }
-
 
 void APlayerCharacter::SeenPlacingCameraTimer(float DeltaTime)
 {

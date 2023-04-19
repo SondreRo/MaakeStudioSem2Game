@@ -50,7 +50,6 @@ void AInteractable::SoftReset()
 void AInteractable::CastToPlayer()
 {
 	FindAllActors(GetWorld(), AllPlayers);
-
 	if (AllPlayers.IsEmpty())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No player character"));

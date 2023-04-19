@@ -81,6 +81,7 @@ private:
 	TArray<AActor*> TestTargets;
 	AActor* PatrolTarget;
 	AActor* ChaseTarget;
+	
 	//private Variables
 	FVector SpawnLocation;
 	int PatrolTargetNumber;
