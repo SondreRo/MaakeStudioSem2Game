@@ -244,6 +244,10 @@ void ASecurity_Guard::TargetSeen(APawn* Target)
 	{
 		ChasingTarget(Target);
 	}
+	if (Target->ActorHasTag("Sus"))
+	{
+		ChasingTarget(Target);
+	}
 }
 
 void ASecurity_Guard::SendChasingTarget(AActor* Target)

@@ -74,7 +74,9 @@ APlayerCharacter::APlayerCharacter()
 
 	SideCharacterRayLength = 10000.f;
 
-	
+	SeenPlacingCamera = false;
+	TotalSusTime = 2;
+	SusTimer = 0;
 }
 
 // Called when the game starts or when spawned
@@ -119,6 +121,8 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	AddControllerYawInput(Yaw);
 	AddControllerPitchInput(Pitch);
+
+	SeenPlacingCameraTimer(DeltaTime);
 
 	/*float velocity = GetVelocity().Length();
 	FString TheFloatStr = FString::SanitizeFloat(velocity);
@@ -165,17 +169,6 @@ void APlayerCharacter::SelectMode()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, SelectTraceChannelProperty, QueryParams);
-
-	/*DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
-	UE_LOG(LogTemp, Log, TEXT("Tracing line: %s to %s"), *TraceStart.ToCompactString(), *TraceEnd.ToCompactString());
-
-	if (Hit.bBlockingHit && IsValid(Hit.GetActor()))
-	{
-		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
-	}
-	else {
-		UE_LOG(LogTemp, Log, TEXT("No Actors were hit"));
-	}*/
 
 	bool HasHitCamera = false;
 	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("Ray"));
@@ -290,7 +283,11 @@ void APlayerCharacter::CameraPlaceMode()
 	{
 		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal);
 		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
+
+		Tags.Add(FName("Sus"));
+		SeenPlacingCamera = true;
 	}
+
 	DestroyGhostCam();
 }
 
@@ -836,26 +833,13 @@ void APlayerCharacter::ShootRayForSideCharacter()
 			{
 				return;
 			}
-
 			
 			for (int i{}; i < AllActorsToControll.Num(); i++)
 			{
-				
 				Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(Hit.ImpactPoint);
 			}
-
-			
 		}
 	}
-
-
-
-
-
-	
-	
-
-	
 }
 
 bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
@@ -882,12 +866,24 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 	{
 				return true;
 	}
-	else
-	{
-				return false;
-	}
 
 	return false;
 }
 
 
+void APlayerCharacter::SeenPlacingCameraTimer(float DeltaTime)
+{
+	if (SeenPlacingCamera == false)
+	{
+		return;
+	}
+
+	SusTimer += DeltaTime;
+
+	if (SusTimer >= TotalSusTime)
+	{
+		SusTimer = 0;
+		Tags.RemoveSingle(FName("Sus"));
+		SeenPlacingCamera = false;
+	}
+}
