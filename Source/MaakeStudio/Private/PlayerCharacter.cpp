@@ -73,7 +73,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraToChangeTo = 0;
 
 	SideCharacterRayLength = 10000.f;
-
+	CanInteract = false;
 	
 }
 
@@ -357,6 +357,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Triggered, this, &APlayerCharacter::InteractTrigger);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Completed, this, &APlayerCharacter::InteractEnd);
 
 		//Delete
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
@@ -596,11 +598,7 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 	}
 
 
-	Timer++;
-	if (Timer > 100)
-	{
-		Timer = 0;
-	}
+	
 
 
 	if (!HoldingInteractButton)
@@ -661,17 +659,39 @@ void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
 	
 
-	if (AllActorsToControll.IsEmpty())
+	
+
+}
+
+void APlayerCharacter::InteractTrigger(const FInputActionValue& input)
+{
+	if (!CanInteract)
 	{
 		return;
 	}
-
-	for (int i{}; i < AllActorsToControll.Num(); i++)
+	Timer++;
+	if (Timer > 100)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
-		AllActorsToControll[i]->Interact();
+		if (AllActorsToControll.IsEmpty())
+		{
+			return;
+		}
+
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
+			AllActorsToControll[i]->Interact();
+		}
+		Timer = 0;
 	}
 
+
+	
+}
+
+void APlayerCharacter::InteractEnd(const FInputActionValue& input)
+{
+	Timer = 0;
 }
 
 void APlayerCharacter::SwapToolOne(const FInputActionValue& input)
