@@ -73,7 +73,7 @@ APlayerCharacter::APlayerCharacter()
 	CameraToChangeTo = 0;
 
 	SideCharacterRayLength = 10000.f;
-	CanInteract = false;
+
 	
 }
 
@@ -95,7 +95,6 @@ void APlayerCharacter::BeginPlay()
 
 		}
 	}
-
 	
 	FindAllActors(GetWorld(), AllActorsToControll);
 
@@ -106,6 +105,8 @@ void APlayerCharacter::BeginPlay()
 	
 	SpawnLocation = GetActorLocation();
 	SpawnRotation = GetActorRotation();
+
+	Tags.Add(FName("PlayerCharacter"));
 }
 
 // Called every frame
@@ -357,8 +358,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
-		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Triggered, this, &APlayerCharacter::InteractTrigger);
-		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Completed, this, &APlayerCharacter::InteractEnd);
 
 		//Delete
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
@@ -396,7 +395,7 @@ void APlayerCharacter::AddGameScore(float inScore)
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
-	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
+	
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
 }
 
@@ -598,7 +597,11 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 	}
 
 
-	
+	Timer++;
+	if (Timer > 100)
+	{
+		Timer = 0;
+	}
 
 
 	if (!HoldingInteractButton)
@@ -659,39 +662,17 @@ void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
 	
 
-	
-
-}
-
-void APlayerCharacter::InteractTrigger(const FInputActionValue& input)
-{
-	if (!CanInteract)
+	if (AllActorsToControll.IsEmpty())
 	{
 		return;
 	}
-	Timer++;
-	if (Timer > 100)
-	{
-		if (AllActorsToControll.IsEmpty())
-		{
-			return;
-		}
 
-		for (int i{}; i < AllActorsToControll.Num(); i++)
-		{
-			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
-			AllActorsToControll[i]->Interact();
-		}
-		Timer = 0;
+	for (int i{}; i < AllActorsToControll.Num(); i++)
+	{
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
+		AllActorsToControll[i]->Interact();
 	}
 
-
-	
-}
-
-void APlayerCharacter::InteractEnd(const FInputActionValue& input)
-{
-	Timer = 0;
 }
 
 void APlayerCharacter::SwapToolOne(const FInputActionValue& input)

@@ -104,8 +104,7 @@ public:
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	void AddGameScore(float inScore);
 	
-	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-	bool CanInteract;
+	float Update;
 
 	UPROPERTY(BlueprintReadWrite)
 	float Timer;
@@ -131,8 +130,6 @@ private:
 	void MainInteractEnd(const FInputActionValue& input);
 
 	void InteractStarted(const FInputActionValue& input);
-	void InteractTrigger(const FInputActionValue& input);
-	void InteractEnd(const FInputActionValue& input);
 
 
 	void DeleteTrigger(const FInputActionValue& input);
@@ -175,12 +172,6 @@ private:
 	AActor* SpawnedPlayerCamera;
 	APlayerController* PlayerController;
 	TArray<AActor*> SpawnedPlayerCameraArray;
-
-
-	
-
-
-
 
 	template<typename T>
 	void FindAllActors(UWorld* World, TArray<T*>& Out)

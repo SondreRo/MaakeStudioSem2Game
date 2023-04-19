@@ -240,8 +240,17 @@ void ASecurity_Guard::SoftReset()
 
 void ASecurity_Guard::TargetSeen(APawn* Target)
 {
-	if (Target->ActorHasTag("test"))
+	if (Target->ActorHasTag("PlayerSideCharacter"))
 	{
 		ChasingTarget(Target);
 	}
+}
+
+void ASecurity_Guard::SendChasingTarget(AActor* Target)
+{
+	ChaseTarget = Target;
+	EnemyState = EEnemyState::Chasing;
+	AggroTime = 0;
+	MoveTo(Target);
+	UE_LOG(LogTemp, Warning, TEXT("i am chasing player"))
 }

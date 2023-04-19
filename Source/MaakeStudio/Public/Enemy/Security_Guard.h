@@ -41,6 +41,8 @@ public:
 	UFUNCTION()
 	void TargetSeen(APawn* Target);
 
+	void SendChasingTarget(AActor* Target);
+
 	AAIController* EnemyController;
 	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
 	TArray<AActor*> PatrolTargets;
@@ -72,13 +74,13 @@ private:
 	void AddPatrolTargets();
 	void SoftReset();
 
-	AActor* PatrolTarget;
-	AActor* ChaseTarget;
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* TargetSensing;
 	EEnemyState EnemyState;
 
 	TArray<AActor*> TestTargets;
+	AActor* PatrolTarget;
+	AActor* ChaseTarget;
 	//private Variables
 	FVector SpawnLocation;
 	int PatrolTargetNumber;

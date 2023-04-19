@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "Interactable.generated.h"
 
+
 UCLASS()
 class MAAKESTUDIO_API AInteractable : public AActor
 {
