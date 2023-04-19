@@ -164,9 +164,16 @@ private:
 
 	void ShootRayForSideCharacter();
 	bool CheckSideCharacterLineOfSight(class APlayerCamera* CurrentCam);
+
+	//---------------TimerMethods-----------------------//
+	void SeenPlacingCameraTimer(float DeltaTime);
+
 	//---------------PrivateVariables-------------------//
 	
 	bool HoldingInteractButton;
+	bool SeenPlacingCamera;
+	float SusTimer;
+	float TotalSusTime;
 
 	AActor * SpawnedGhostCamera;
 	AActor* SpawnedPlayerCamera;
