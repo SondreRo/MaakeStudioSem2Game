@@ -173,12 +173,6 @@ private:
 	APlayerController* PlayerController;
 	TArray<AActor*> SpawnedPlayerCameraArray;
 
-
-	
-
-
-
-
 	template<typename T>
 	void FindAllActors(UWorld* World, TArray<T*>& Out)
 	{

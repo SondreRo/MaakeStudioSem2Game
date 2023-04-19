@@ -95,7 +95,6 @@ void APlayerCharacter::BeginPlay()
 
 		}
 	}
-
 	
 	FindAllActors(GetWorld(), AllActorsToControll);
 
@@ -106,6 +105,8 @@ void APlayerCharacter::BeginPlay()
 	
 	SpawnLocation = GetActorLocation();
 	SpawnRotation = GetActorRotation();
+
+	Tags.Add(FName("PlayerCharacter"));
 }
 
 // Called every frame

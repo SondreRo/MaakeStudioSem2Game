@@ -4,6 +4,7 @@
 #include "Interactables/Interactable.h"
 #include "components/SphereComponent.h"
 #include "PlayerCharacter.h"
+#include "EngineUtils.h"
 
 // Sets default values
 AInteractable::AInteractable()
@@ -48,6 +49,8 @@ void AInteractable::SoftReset()
 
 void AInteractable::CastToPlayer()
 {
+	FindAllActors(GetWorld(), AllPlayers);
+
 	if (AllPlayers.IsEmpty())
 	{
 		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No player character"));

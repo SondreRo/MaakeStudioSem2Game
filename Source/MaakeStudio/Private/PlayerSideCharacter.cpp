@@ -26,15 +26,11 @@ void APlayerSideCharacter::BeginPlay()
 	Super::BeginPlay();
 	PlayerSideController = Cast<AAIController>(GetController());
 
-	
-
-
-	Tags.Add(FName("test"));
+	Tags.Add(FName("PlayerSideCharacter"));
 
 	SpawnLocation = GetActorLocation();
 	SpawnRotation = GetActorRotation();
 
-	
 	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapBegin);
 	SphereCollider->OnComponentEndOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapEnd);
 }
