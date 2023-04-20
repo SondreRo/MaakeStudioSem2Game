@@ -15,11 +15,12 @@ AEnemyCamera::AEnemyCamera()
 	PrimaryActorTick.bCanEverTick = true;
 
 	TargetSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("TargetSensing"));
-	TargetSensing->SightRadius = 2000.f;
+	TargetSensing->SightRadius = 1000.f;
 	TargetSensing->SetPeripheralVisionAngle(45.f);
 	TargetSensing->bOnlySensePlayers = false;
 
 	StaticMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
+	SetRootComponent(StaticMesh);
 }
 
 // Called when the game starts or when spawned
@@ -51,7 +52,7 @@ void AEnemyCamera::TargetSeen(APawn* Target)
 	}
 	if (Target->ActorHasTag("PlayerCharacter"))
 	{
-
+		
 	}
 }
 
