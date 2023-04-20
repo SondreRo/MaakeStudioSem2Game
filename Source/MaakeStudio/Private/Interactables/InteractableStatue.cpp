@@ -32,7 +32,7 @@ void AInteractableStatue::Interacted()
 {
 	AInteractable::Interacted();
 
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM SLAVE"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM SLAVE"));
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);

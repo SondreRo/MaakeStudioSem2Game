@@ -104,7 +104,7 @@ void APlayerCharacter::BeginPlay()
 
 	if (AllActorsToControll.Num() == 0)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("No Side Character Found"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("No Side Character Found"));
 	}
 	
 	SpawnLocation = GetActorLocation();
@@ -188,7 +188,7 @@ void APlayerCharacter::SelectMode()
 
 	if (HasHitCamera)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("HitCamera"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, TEXT("HitCamera"));
 		SelectedCamera = Hit.GetActor();
 		Cast<APlayerCamera>(SelectedCamera)->CamSelected();
 	}
@@ -397,8 +397,8 @@ void APlayerCharacter::AddGameScore(float inScore, int inType)
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
-	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
-	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
+	//GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
+	//GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
 
 	switch(inType) {
 	case 1:
@@ -447,8 +447,8 @@ void APlayerCharacter::MovementRightLeftStarted(const FInputActionValue& input)
 
 		if (input.Get<float>() > 0)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("HELLO"));
+			//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
+			//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, TEXT("HELLO"));
 			CameraToChangeTo++;
 			if (CameraToChangeTo > SpawnedPlayerCameraArray.Num() - 1)
 			{
@@ -460,7 +460,7 @@ void APlayerCharacter::MovementRightLeftStarted(const FInputActionValue& input)
 		else if (input.Get<float>() < 0)
 		{
 			CameraToChangeTo--;
-			GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
+			//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Cyan, FString::FromInt(CameraToChangeTo));
 
 			if (CameraToChangeTo < 0)
 			{
@@ -697,7 +697,7 @@ void APlayerCharacter::InteractTrigger(const FInputActionValue& input)
 
 		for (int i{}; i < AllActorsToControll.Num(); i++)
 		{
-			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
+			//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
 			AllActorsToControll[i]->Interact();
 		}
 		Timer = 0;
@@ -774,7 +774,7 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 	}
 	if (SpawnedPlayerCameraArray.IsEmpty())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("CantChangeCam"));
+		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("CantChangeCam"));
 
 		return;
 
@@ -808,7 +808,7 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 	{
 		NewViewTarget = this;
 	}
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("ChanginViewTarget"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("ChanginViewTarget"));
 
 	PlayerController->SetViewTargetWithBlend(
 		NewViewTarget,
@@ -980,7 +980,8 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
 	isPossesed = true;
-	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("ISPossesed"));
+	//GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("ISPossesed"));
+	
 	
 	int ParameterToPass = CameraToChangeTo ; // You can use any supported variable type
 

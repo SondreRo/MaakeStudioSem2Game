@@ -28,6 +28,4 @@ public:
 	virtual void CastToPlayer() override;
 
 	virtual void SoftReset() override;
-
-private:
 };

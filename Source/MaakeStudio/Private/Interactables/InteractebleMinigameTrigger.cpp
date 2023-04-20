@@ -21,7 +21,7 @@ void AInteractebleMinigameTrigger::Interacted()
 
 	 if (!MinigameToPosses)
 	 {
-		GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("No Minigame selected"));	
+		//GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("No Minigame selected"));	
 		 return;
 	 }
 	PlayerController = UGameplayStatics::GetPlayerController(GetWorld(),0);
