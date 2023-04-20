@@ -47,10 +47,12 @@ void AEnemyCamera::TargetSeen(APawn* Target)
 	if (Target->ActorHasTag("PlayerSideCharacter"))
 	{
 		TargetSeenLocation = Target->GetActorLocation();
+		SecurityGuard->SendChasingTarget(TargetSeenLocation);
 	}
 	if (Target->ActorHasTag("PlayerCharacter"))
 	{
-		SecurityGuard->SendChasingTarget(Target);
+		TargetSeenLocation = Target->GetActorLocation();
+		SecurityGuard->SendChasingTarget(TargetSeenLocation);
 	}
 }
 
