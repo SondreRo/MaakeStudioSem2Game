@@ -165,7 +165,6 @@ private:
 
 	void ChangeViewTarget(int CameraIndex);
 	
-
 	void ShootRayForSideCharacter();
 	void WalkSideCharacterToMouseCursor();
 	bool CheckSideCharacterLineOfSight(class APlayerCamera* CurrentCam);
@@ -243,7 +242,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	int MaxCameras;
 
-	
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "My Variables")
 	bool CameraViewMode;
 	
@@ -251,8 +249,6 @@ public:
 	float Yaw;
 
 	int CameraToChangeTo;
-
-
 
 	FVector LineTraceLocation;
 	FRotator LineTraceNormal;
@@ -266,17 +262,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 	float RunSpeed;
 
-
 	//---------------Task Variables-------------------//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
 	bool HasStolenPainting; // 1
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
 	bool HasStolenStatue;	// 2
 	
-	
-	
 	//---------------Reset Variables-------------------//
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
-
 };

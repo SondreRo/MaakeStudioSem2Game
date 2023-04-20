@@ -123,11 +123,6 @@ void APlayerSideCharacter::Interact()
 
 void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//if (ActorHasTag("Interacteble"))
-	//{
-	//	OverlappingActors.Add(OtherActor);
-	//}
-
 	AInteractable* InteractableActor = Cast<AInteractable>(OtherActor);
 
 	if (InteractableActor == nullptr)
@@ -145,7 +140,6 @@ void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, A
 
 void APlayerSideCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
 	AInteractable* InteractableActor = Cast<AInteractable>(OtherActor);
 
 	if (InteractableActor == nullptr)

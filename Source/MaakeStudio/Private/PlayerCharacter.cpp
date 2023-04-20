@@ -18,7 +18,6 @@
 
 #include "Engine/World.h"
 
-
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -87,9 +86,6 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//Temp
-	
-	
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->AirControl = 0.5f;
 
@@ -103,7 +99,6 @@ void APlayerCharacter::BeginPlay()
 
 		}
 	}
-
 	
 	FindAllActors(GetWorld(), AllActorsToControll);
 
@@ -123,11 +118,7 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	if (!PlayerController)
-	{
-		return;
-	}
-	if (!isPossesed)
+	if (!PlayerController || !isPossesed)
 	{
 		return;
 	}
@@ -825,8 +816,6 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		EViewTargetBlendFunction::VTBlend_Cubic,
 		1.f,
 		true);
-
-
 }
 
 void APlayerCharacter::ShootRayForSideCharacter()
@@ -847,8 +836,6 @@ void APlayerCharacter::ShootRayForSideCharacter()
 		return;
 	}
 
-	
-
 	FHitResult Hit;
 	FVector TraceStart = CurrentCamTest->Camera->GetComponentLocation();
 	FVector TraceEnd = TraceStart + (CurrentCamTest->Camera->GetForwardVector() * SideCharacterRayLength);
@@ -866,7 +853,6 @@ void APlayerCharacter::ShootRayForSideCharacter()
 		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
 
 	}
-
 
 	if (CheckSideCharacterLineOfSight(CurrentCamTest))
 	{
@@ -904,8 +890,6 @@ void APlayerCharacter::WalkSideCharacterToMouseCursor()
 		return;
 	}
 
-	
-
 	FHitResult Hit;
 	FVector TraceStart = CurrentCamTest->Camera->GetComponentLocation();
 	FVector TraceEnd = TraceStart + (CurrentCamTest->Camera->GetForwardVector() * SideCharacterRayLength);
@@ -918,7 +902,6 @@ void APlayerCharacter::WalkSideCharacterToMouseCursor()
 
 	if (Hit.ImpactPoint != FVector(0, 0, 0))
 	{
-
 		if (AllActorsToControll.Num() == 0)
 		{
 			return;
@@ -934,14 +917,9 @@ void APlayerCharacter::WalkSideCharacterToMouseCursor()
 			DirectionVector.Normalize();
 
 			Cast<APlayerSideCharacter>(AllActorsToControll[i])->AddMovementInput(DirectionVector);
-			
 		}
-			
 			//Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(Hit.ImpactPoint);
-		
 	}
-
-	
 }
 
 bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
@@ -953,7 +931,6 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 	{
 		return false;
 	}
-
 
 	FHitResult Hit;
 	FVector TraceStart = CurrentCam->Camera->GetComponentLocation();
@@ -1011,6 +988,4 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APlayerCharacter::ChangeViewTarget, ParameterToPass);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.2, false);
-
-	
 }

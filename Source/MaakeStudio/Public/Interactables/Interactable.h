@@ -24,7 +24,6 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class UBoxComponent* BoxCollider;
 
-
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -62,8 +61,4 @@ public:
 	float GameScore;
 
 	FVector SpawnLocation;
-
-	
-private:
-	
 };

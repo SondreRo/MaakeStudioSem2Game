@@ -21,6 +21,7 @@ ASecurity_Guard::ASecurity_Guard()
 
 	PatrolTargetNumber = 0;
 	PatrolRadius = 100;
+	CheckRadius = 100;
 	WaitTimer = 0;
 	TotalWaitTime = 4;
 	AggroTime = 0;
@@ -56,6 +57,22 @@ void ASecurity_Guard::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	AI_TickRun(DeltaTime);
+}
+
+// Called to bind functionality to input
+void ASecurity_Guard::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
+{
+	Super::SetupPlayerInputComponent(PlayerInputComponent);
+}
+
+//---------------------------//
+//------Private Methods------//
+//---------------------------//
+
+/*-----Main Tick Methods-----*/
+void ASecurity_Guard::AI_TickRun(float DeltaTime)
+{
 	if (ChaseTarget != nullptr && InTargetRange(ChaseTarget, 200) && CatchedPlayer == false)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("In Range"));
@@ -67,10 +84,13 @@ void ASecurity_Guard::Tick(float DeltaTime)
 	{
 		RandomPatrolling == true ? MoveToRandomPoint() : MoveToPoint();
 	}
+	else if (EnemyState == EEnemyState::Checking)
+	{
+		CheckingLocation();
+	}
 	else if (EnemyState == EEnemyState::Chasing)
 	{
 		AggroTimer(DeltaTime);
-		
 	}
 	else if (EnemyState == EEnemyState::Waiting)
 	{
@@ -78,12 +98,7 @@ void ASecurity_Guard::Tick(float DeltaTime)
 	}
 }
 
-// Called to bind functionality to input
-void ASecurity_Guard::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
-}
+/*------Movement Methods-----*/
 
 void ASecurity_Guard::MoveToPoint()
 {
@@ -97,8 +112,8 @@ void ASecurity_Guard::MoveToPoint()
 		}
 
 		PatrolTarget = PatrolTargets[PatrolTargetNumber];
-
 		EnemyState = EEnemyState::Waiting;
+		UE_LOG(LogTemp, Warning, TEXT("Gonna wait"))
 	}
 }
 
@@ -133,16 +148,20 @@ void ASecurity_Guard::MoveToRandomPoint()
 	}
 }
 
-bool ASecurity_Guard::InTargetRange(AActor* Target, double Radius)
+void ASecurity_Guard::MoveToLocation(FVector& location)
 {
-	if (Target == nullptr)
+	if (EnemyController == nullptr)
 	{
-				return false;
+		return;
 	}
 
-	const double DistanceToTarget = (Target->GetActorLocation() - this->GetActorLocation()).Size();
-	
-	return DistanceToTarget <= Radius;
+	FAIMoveRequest MoveRequest;
+	MoveRequest.SetGoalLocation(location);
+	MoveRequest.SetAcceptanceRadius(15.f);
+
+	FNavPathSharedPtr NavPath;
+
+	EnemyController->MoveTo(MoveRequest, &NavPath);
 }
 
 void ASecurity_Guard::MoveTo(AActor* Target)
@@ -171,6 +190,45 @@ void ASecurity_Guard::MoveTo(AActor* Target)
 	}
 }
 
+void ASecurity_Guard::ChasingTarget(APawn* Target)
+{
+	if (EnemyState != EEnemyState::Chasing)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("Target Located!"))
+			EnemyState = EEnemyState::Chasing;
+		GetCharacterMovement()->MaxWalkSpeed = ChaseSpeed;
+		ChaseTarget = Target;
+		MoveTo(ChaseTarget);
+	}
+	AggroTime = 0;
+}
+
+/*-------Other Methods-------*/
+
+bool ASecurity_Guard::InTargetRange(AActor* Target, double Radius)
+{
+	if (Target == nullptr)
+	{
+		return false;
+	}
+
+	const double DistanceToTarget = (Target->GetActorLocation() - this->GetActorLocation()).Size();
+	
+	return FMath::Abs(DistanceToTarget) <= Radius;
+}
+
+bool ASecurity_Guard::InTargetRange(FVector& location, double Radius)
+{
+	const double DistanceToTarget = (location - this->GetActorLocation()).Size();
+
+	//FString text2 = location.ToString();
+	//FString text = FString::SanitizeFloat(DistanceToTarget);
+	//GEngine->AddOnScreenDebugMessage(6, 3, FColor::Green, text2);
+	//GEngine->AddOnScreenDebugMessage(5, 3, FColor::Green, text);
+
+	return FMath::Abs(DistanceToTarget) <= Radius;
+}
+
 void ASecurity_Guard::PauseWhenFinished(float DeltaTime)
 {
 	WaitTimer += DeltaTime;
@@ -195,19 +253,6 @@ void ASecurity_Guard::AggroTimer(float DeltaTime)
 	}
 }
 
-void ASecurity_Guard::ChasingTarget(APawn* Target)
-{
-	if (EnemyState != EEnemyState::Chasing)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("Target Located!"))
-		EnemyState = EEnemyState::Chasing;
-		GetCharacterMovement()->MaxWalkSpeed = ChaseSpeed;
-		ChaseTarget = Target;
-		MoveTo(ChaseTarget);
-	}
-	AggroTime = 0;
-}
-
 void ASecurity_Guard::AddPatrolTargets()
 {
 	for (TActorIterator<AActor> Actors(GetWorld()); Actors; ++Actors)
@@ -219,6 +264,31 @@ void ASecurity_Guard::AddPatrolTargets()
 			Actor->GetAllChildActors(TestTargets);
 			break;
 		}
+	}
+}
+
+void ASecurity_Guard::CheckingLocation()
+{
+	if (InTargetRange(CheckLocation, CheckRadius))
+	{
+		EnemyState = EEnemyState::Waiting;
+		UE_LOG(LogTemp, Warning, TEXT("Gonna wait"))
+	}
+}
+
+//---------------------------//
+//------Public Methods-------//
+//---------------------------//
+
+void ASecurity_Guard::TargetSeen(APawn* Target)
+{
+	if (Target->ActorHasTag("PlayerSideCharacter"))
+	{
+		ChasingTarget(Target);
+	}
+	if (Target->ActorHasTag("Sus"))
+	{
+		ChasingTarget(Target);
 	}
 }
 
@@ -238,23 +308,12 @@ void ASecurity_Guard::SoftReset()
 	}
 }
 
-void ASecurity_Guard::TargetSeen(APawn* Target)
+void ASecurity_Guard::SendChasingTarget(FVector& location)
 {
-	if (Target->ActorHasTag("PlayerSideCharacter"))
+	if (EnemyState != EEnemyState::Checking)
 	{
-		ChasingTarget(Target);
+		EnemyState = EEnemyState::Checking;
+		MoveToLocation(location);
+		CheckLocation = location;
 	}
-	if (Target->ActorHasTag("Sus"))
-	{
-		ChasingTarget(Target);
-	}
-}
-
-void ASecurity_Guard::SendChasingTarget(AActor* Target)
-{
-	ChaseTarget = Target;
-	EnemyState = EEnemyState::Chasing;
-	AggroTime = 0;
-	MoveTo(Target);
-	UE_LOG(LogTemp, Warning, TEXT("i am chasing player"))
 }

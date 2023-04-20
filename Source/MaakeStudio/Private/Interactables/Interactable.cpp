@@ -69,6 +69,3 @@ void AInteractable::CastToPlayer()
 		Player = Cast<APlayerCharacter>(AllPlayers[i]);
 	}
 }
-
-
-
