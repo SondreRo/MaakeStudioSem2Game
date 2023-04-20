@@ -14,6 +14,8 @@ class MAAKESTUDIO_API AInteractebleMinigameTrigger : public AInteractable
 {
 	GENERATED_BODY()
 
+	AInteractebleMinigameTrigger();
+	
 	virtual void Interacted() override;
 
 

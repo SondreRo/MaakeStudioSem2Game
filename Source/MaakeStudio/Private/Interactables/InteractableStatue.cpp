@@ -2,12 +2,18 @@
 
 
 #include "Interactables/InteractableStatue.h"
+#include "PlayerCharacter.h"
+#include "components/SphereComponent.h"
 
 AInteractableStatue::AInteractableStatue()
 {
+	
 	PrimaryActorTick.bCanEverTick = true;
 
 	GameScore = 50;
+
+	SphereCollider = CreateDefaultSubobject<USphereComponent>("SphereCollider");
+	SphereCollider->SetupAttachment(GetRootComponent());
 }
 
 void AInteractableStatue::BeginPlay()
@@ -30,6 +36,8 @@ void AInteractableStatue::Interacted()
 
 	SetActorHiddenInGame(true);
 	SetActorEnableCollision(false);
+	
+	CastToPlayer();
 }
 
 void AInteractableStatue::SoftReset()
@@ -41,4 +49,6 @@ void AInteractableStatue::SoftReset()
 void AInteractableStatue::CastToPlayer()
 {
 	AInteractable::CastToPlayer();
+
+	Player->AddGameScore(GameScore, 2);
 }

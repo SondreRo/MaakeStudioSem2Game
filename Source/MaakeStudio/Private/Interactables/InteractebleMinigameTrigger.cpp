@@ -3,9 +3,16 @@
 
 #include "Interactables/InteractebleMinigameTrigger.h"
 
-#include "components/SphereComponent.h"
+#include "Components/BoxComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Minigame/MiniGamePawn.h"
+
+
+AInteractebleMinigameTrigger::AInteractebleMinigameTrigger()
+{
+	BoxCollider = CreateDefaultSubobject<UBoxComponent>("BoxCollider");
+	BoxCollider->SetupAttachment(GetRootComponent());
+}
 
 void AInteractebleMinigameTrigger::Interacted()
 {

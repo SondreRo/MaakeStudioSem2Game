@@ -209,7 +209,8 @@ void APlayerCharacter::PlaceGhostCamera()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Camera, QueryParams);
 
 	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
 	//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 4.f, 4, FColor::Red, false, 0.3f, 0, 1.f);
@@ -391,13 +392,25 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 
 }
 
-void APlayerCharacter::AddGameScore(float inScore)
+void APlayerCharacter::AddGameScore(float inScore, int inType)
 {
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
+
+	switch(inType) {
+	case 1:
+		HasStolenPainting = true;
+		break;
+	case 2:
+		HasStolenStatue = true;
+		break;
+	default:
+		GEngine->AddOnScreenDebugMessage(-1,5,FColor::Green,TEXT("No Index For AddGameScore"));
+	}
+	
 }
 
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)
@@ -840,7 +853,6 @@ void APlayerCharacter::ShootRayForSideCharacter()
 		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
 
 	}
-
 
 	if (CheckSideCharacterLineOfSight(CurrentCamTest))
 	{

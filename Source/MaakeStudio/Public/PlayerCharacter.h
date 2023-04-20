@@ -102,7 +102,7 @@ public:
 	void SoftReset(bool DeleteCameras);
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
-	void AddGameScore(float inScore);
+	void AddGameScore(float inScore, int inType);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool CanInteract;
@@ -242,11 +242,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	int MaxCameras;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "My Variables")
+	bool CameraViewMode;
+	
 	float Pitch;
 	float Yaw;
 
 	int CameraToChangeTo;
-	bool CameraViewMode;
 
 	FVector LineTraceLocation;
 	FRotator LineTraceNormal;
@@ -260,6 +262,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 	float RunSpeed;
 
+	//---------------Task Variables-------------------//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasStolenPainting; // 1
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasStolenStatue;	// 2
+	
 	//---------------Reset Variables-------------------//
 	FVector SpawnLocation;
 	FRotator SpawnRotation;

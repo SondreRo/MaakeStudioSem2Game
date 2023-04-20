@@ -96,13 +96,29 @@ void APlayerSideCharacter::Interact()
 		return;
 	}
 
-	for (int i{}; i < OverlappingActors.Num(); i++)
+	int OverlappingIndex = -1;
+	float ShortestVector = 1000000;
+	
+	for (int i = OverlappingActors.Num()-1; i >= 0; i--)
 	{
 		FString ActorName = OverlappingActors[i]->GetName();
-
 		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Green, ActorName);
-		OverlappingActors[i]->Interacted();
+
+		float VectorLength = FMath::Abs((OverlappingActors[i]->GetActorLocation() - GetActorLocation()).Size());
+					
+		if (VectorLength < ShortestVector)
+		{
+			ShortestVector = VectorLength;
+			OverlappingIndex = i;
+		}
 	}
+	
+	if (OverlappingIndex < 0)
+	{
+		return;
+	}
+	
+	OverlappingActors[OverlappingIndex]->Interacted();
 }
 
 void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)

@@ -9,9 +9,6 @@
 class AAIController;
 
 UCLASS()
-
-
-
 class MAAKESTUDIO_API APlayerSideCharacter : public ACharacter
 {
 	GENERATED_BODY()

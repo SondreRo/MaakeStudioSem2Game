@@ -3,12 +3,16 @@
 
 #include "Interactables/SmallPainting.h"
 #include "PlayerCharacter.h"
+#include "Components/BoxComponent.h"
 
 ASmallPainting::ASmallPainting()
 {
 	PrimaryActorTick.bCanEverTick = true;
 
 	GameScore = 10;
+
+	BoxCollider = CreateDefaultSubobject<UBoxComponent>("BoxCollider");
+	BoxCollider->SetupAttachment(GetRootComponent());
 }
 
 void ASmallPainting::BeginPlay()
@@ -44,5 +48,5 @@ void ASmallPainting::CastToPlayer()
 {
 	AInteractable::CastToPlayer();
 
-	Player->AddGameScore(GameScore);
+	Player->AddGameScore(GameScore, 1);
 }

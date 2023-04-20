@@ -2,9 +2,10 @@
 
 
 #include "Interactables/Interactable.h"
-#include "components/SphereComponent.h"
+
 #include "PlayerCharacter.h"
 #include "EngineUtils.h"
+
 
 // Sets default values
 AInteractable::AInteractable()
@@ -12,13 +13,12 @@ AInteractable::AInteractable()
  	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
-	
-
-	SphereCollider = CreateDefaultSubobject<USphereComponent>(TEXT("SphereCollider"));
-	SetRootComponent(SphereCollider);
-
 	InteractableMesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("StaticMesh"));
-	InteractableMesh->SetupAttachment(GetRootComponent());
+	SetRootComponent(InteractableMesh);
+	//InteractableMesh->SetupAttachment(GetRootComponent());
+	
+	InteractableMesh->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	Tags.Add(FName("Interacteble"));
 }
 
@@ -39,7 +39,6 @@ void AInteractable::Tick(float DeltaTime)
 void AInteractable::Interacted()
 {
 	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM THE MASTER"));
-
 }
 
 void AInteractable::SoftReset()
