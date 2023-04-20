@@ -77,7 +77,7 @@ APlayerCharacter::APlayerCharacter()
 	SeenPlacingCamera = false;
 	TotalSusTime = 2;
 	SusTimer = 0;
-	CanInteract = false;
+	CanInteract = true;
 }
 
 // Called when the game starts or when spawned
@@ -85,6 +85,9 @@ void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//Temp
+	CanInteract = true;
+	
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->AirControl = 0.5f;
 
@@ -837,6 +840,7 @@ void APlayerCharacter::ShootRayForSideCharacter()
 
 	if (CheckSideCharacterLineOfSight(CurrentCamTest))
 	{
+		
 		if (Hit.ImpactPoint != FVector(0, 0, 0))
 		{
 
@@ -855,6 +859,9 @@ void APlayerCharacter::ShootRayForSideCharacter()
 
 bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 {
+	//This is temp
+	return true;
+	
 	if (AllActorsToControll.Num() == 0)
 	{
 		return false;
