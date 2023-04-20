@@ -401,13 +401,25 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 
 }
 
-void APlayerCharacter::AddGameScore(float inScore)
+void APlayerCharacter::AddGameScore(float inScore, int inType)
 {
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
+
+	switch(inType) {
+	case 1:
+		HasStolenPainting = true;
+		break;
+	case 2:
+		HasStolenStatue = true;
+		break;
+	default:
+		GEngine->AddOnScreenDebugMessage(-1,5,FColor::Green,TEXT("No Index For AddGameScore"));
+	}
+	
 }
 
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)

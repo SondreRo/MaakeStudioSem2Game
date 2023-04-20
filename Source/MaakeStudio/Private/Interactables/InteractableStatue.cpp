@@ -50,5 +50,5 @@ void AInteractableStatue::CastToPlayer()
 {
 	AInteractable::CastToPlayer();
 
-	Player->AddGameScore(GameScore);
+	Player->AddGameScore(GameScore, 2);
 }

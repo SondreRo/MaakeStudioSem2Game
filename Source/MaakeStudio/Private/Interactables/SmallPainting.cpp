@@ -48,5 +48,5 @@ void ASmallPainting::CastToPlayer()
 {
 	AInteractable::CastToPlayer();
 
-	Player->AddGameScore(GameScore);
+	Player->AddGameScore(GameScore, 1);
 }

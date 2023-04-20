@@ -102,7 +102,7 @@ public:
 	void SoftReset(bool DeleteCameras);
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
-	void AddGameScore(float inScore);
+	void AddGameScore(float inScore, int inType);
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	bool CanInteract;
@@ -267,6 +267,14 @@ public:
 	float RunSpeed;
 
 
+	//---------------Task Variables-------------------//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasStolenPainting; // 1
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasStolenStatue;	// 2
+	
+	
+	
 	//---------------Reset Variables-------------------//
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
