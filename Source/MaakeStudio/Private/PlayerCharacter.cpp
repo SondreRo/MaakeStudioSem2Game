@@ -78,6 +78,7 @@ APlayerCharacter::APlayerCharacter()
 	TotalSusTime = 2;
 	SusTimer = 0;
 	CanInteract = true;
+	isPossesed = true;
 }
 
 // Called when the game starts or when spawned
@@ -101,6 +102,7 @@ void APlayerCharacter::BeginPlay()
 
 		}
 	}
+
 	
 	FindAllActors(GetWorld(), AllActorsToControll);
 
@@ -120,7 +122,14 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+	if (!PlayerController)
+	{
+		return;
+	}
+	if (!isPossesed)
+	{
+		return;
+	}
 	CharMovement();
 
 	AddControllerYawInput(Yaw);
@@ -797,9 +806,6 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 
 }
 
-
-
-
 void APlayerCharacter::ShootRayForSideCharacter()
 {
 	if (!CameraViewMode)
@@ -827,8 +833,9 @@ void APlayerCharacter::ShootRayForSideCharacter()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(CurrentCamTest);
 
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
-
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
+	
 	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 3.0f);
 
 	if (Hit.GetActor())
@@ -902,4 +909,27 @@ void APlayerCharacter::SeenPlacingCameraTimer(float DeltaTime)
 		Tags.RemoveSingle(FName("Sus"));
 		SeenPlacingCamera = false;
 	}
+}
+
+void APlayerCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+
+	isPossesed = false;
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	isPossesed = true;
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("ISPossesed"));
+	
+	
+	int ParameterToPass = CameraToChangeTo ; // You can use any supported variable type
+
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APlayerCharacter::ChangeViewTarget, ParameterToPass);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.2, false);
+
+	
 }

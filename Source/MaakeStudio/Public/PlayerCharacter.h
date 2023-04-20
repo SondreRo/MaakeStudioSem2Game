@@ -164,6 +164,7 @@ private:
 	bool CheckCameraPlacement(FVector HitLocation);
 
 	void ChangeViewTarget(int CameraIndex);
+	
 
 	void ShootRayForSideCharacter();
 	bool CheckSideCharacterLineOfSight(class APlayerCamera* CurrentCam);
@@ -194,6 +195,10 @@ private:
 	TArray<APlayerSideCharacter*> AllActorsToControll;
 
 public:
+
+	bool isPossesed;
+	virtual void UnPossessed() override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 	float InputX;
@@ -205,7 +210,7 @@ public:
 	TEnumAsByte<ECollisionChannel> TraceChannelProperty;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
-	TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty = ECC_Pawn;
+	TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty;
 	
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	TEnumAsByte<ECollisionChannel> SideCharacterRayProperty;
