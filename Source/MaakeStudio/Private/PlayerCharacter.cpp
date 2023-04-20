@@ -840,7 +840,6 @@ void APlayerCharacter::ShootRayForSideCharacter()
 
 	if (CheckSideCharacterLineOfSight(CurrentCamTest))
 	{
-		
 		if (Hit.ImpactPoint != FVector(0, 0, 0))
 		{
 
