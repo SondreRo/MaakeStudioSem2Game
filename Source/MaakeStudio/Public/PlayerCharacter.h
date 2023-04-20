@@ -244,12 +244,14 @@ public:
 	int MaxCameras;
 
 	
-
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "My Variables")
+	bool CameraViewMode;
+	
 	float Pitch;
 	float Yaw;
 
 	int CameraToChangeTo;
-	bool CameraViewMode;
+
 
 
 	FVector LineTraceLocation;

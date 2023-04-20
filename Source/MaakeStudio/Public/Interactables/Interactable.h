@@ -21,10 +21,14 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class USphereComponent* SphereCollider;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	class UBoxComponent* BoxCollider;
+
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
-
+	
 public:	
 	// Called every frame
 	virtual void Tick(float DeltaTime) override;
@@ -38,7 +42,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void CastToPlayer();
 
-	
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool HasSphereComponent = true;
 	
 	template<typename T>
 	void FindAllActors(UWorld* World, TArray<T*>& Out)
@@ -57,4 +62,8 @@ public:
 	float GameScore;
 
 	FVector SpawnLocation;
+
+	
+private:
+	
 };

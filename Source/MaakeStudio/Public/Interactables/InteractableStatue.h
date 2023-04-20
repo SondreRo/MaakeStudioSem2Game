@@ -29,5 +29,5 @@ public:
 
 	virtual void SoftReset() override;
 
-private:
+
 };
