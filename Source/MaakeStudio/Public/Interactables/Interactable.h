@@ -38,6 +38,8 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void CastToPlayer();
 
+	
+	
 	template<typename T>
 	void FindAllActors(UWorld* World, TArray<T*>& Out)
 	{

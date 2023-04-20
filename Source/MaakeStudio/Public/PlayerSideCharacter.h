@@ -60,6 +60,20 @@ private:
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
 
+	bool HasInteractebleInRange;
+	bool HasInteractebleInRangeLastFrame;
 	
+	void InteractInRange();
 
+
+	template<typename T>
+	void FindAllActors(UWorld* World, TArray<T*>& Out)
+	{
+		for (TActorIterator<T> It(World); It; ++It)
+		{
+			Out.Add(*It);
+		}
+	}
+
+	TArray<class APlayerCharacter*> PlayerCharacterArr;
 };

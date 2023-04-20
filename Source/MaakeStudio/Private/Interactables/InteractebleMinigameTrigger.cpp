@@ -2,6 +2,8 @@
 
 
 #include "Interactables/InteractebleMinigameTrigger.h"
+
+#include "components/SphereComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Minigame/MiniGamePawn.h"
 
@@ -21,7 +23,7 @@ void AInteractebleMinigameTrigger::Interacted()
 		return;
 	}
 
-	
+	SetActorEnableCollision(false);
 	
 	PlayerController->Possess(MinigameToPosses);
 }

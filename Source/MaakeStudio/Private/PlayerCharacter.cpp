@@ -18,6 +18,7 @@
 
 #include "Engine/World.h"
 
+
 // Sets default values
 APlayerCharacter::APlayerCharacter()
 {
@@ -87,7 +88,7 @@ void APlayerCharacter::BeginPlay()
 	Super::BeginPlay();
 
 	//Temp
-	CanInteract = true;
+	
 	
 	GetCharacterMovement()->MaxWalkSpeed = 400.f;
 	GetCharacterMovement()->AirControl = 0.5f;
@@ -181,8 +182,9 @@ void APlayerCharacter::SelectMode()
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, SelectTraceChannelProperty, QueryParams);
-
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, SelectTraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
+	
 	bool HasHitCamera = false;
 	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("Ray"));
 	for (int i{}; i < SpawnedPlayerCameraArray.Num(); i++)
@@ -204,11 +206,7 @@ void APlayerCharacter::SelectMode()
 		SelectedCamera = nullptr;
 	}
 
-
-
 }
-
-
 
 void APlayerCharacter::PlaceGhostCamera()
 {
@@ -569,12 +567,17 @@ void APlayerCharacter::RunEnd(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 {
+	
+		if (AllActorsToControll.Num() == 0)
+		{
+			return;
+		}
+			
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(AllActorsToControll[i]->GetActorLocation());
+		}
 
-	if (CameraViewMode)
-	{
-		ShootRayForSideCharacter();
-		return;
-	}
 
 	if (!HoldingInteractButton)
 	{
@@ -605,6 +608,7 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 
 	if (CameraViewMode)
 	{
+		WalkSideCharacterToMouseCursor();
 		return;
 	}
 
@@ -637,6 +641,12 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 {
+
+	if (CameraViewMode)
+	{
+		ShootRayForSideCharacter();
+		return;
+	}
 	Timer = 0;
 
 	DestroyGhostCam();
@@ -861,6 +871,64 @@ void APlayerCharacter::ShootRayForSideCharacter()
 			}
 		}
 	}
+}
+
+void APlayerCharacter::WalkSideCharacterToMouseCursor()
+{
+	if (!CameraViewMode)
+	{
+		return;
+	}
+
+	APlayerCamera* CurrentCamTest;
+
+	if (Cast<APlayerCamera>(CurrentActiveCamera))
+	{
+		CurrentCamTest = Cast<APlayerCamera>(CurrentActiveCamera);
+	}
+	else
+	{
+		return;
+	}
+
+	
+
+	FHitResult Hit;
+	FVector TraceStart = CurrentCamTest->Camera->GetComponentLocation();
+	FVector TraceEnd = TraceStart + (CurrentCamTest->Camera->GetForwardVector() * SideCharacterRayLength);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(CurrentCamTest);
+
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
+
+	if (Hit.ImpactPoint != FVector(0, 0, 0))
+	{
+
+		if (AllActorsToControll.Num() == 0)
+		{
+			return;
+		}
+			
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			FVector SideLocation = AllActorsToControll[i]->GetActorLocation();
+
+			FVector MouseLocation = Hit.Location;
+
+			FVector DirectionVector = MouseLocation - SideLocation;
+			DirectionVector.Normalize();
+
+			Cast<APlayerSideCharacter>(AllActorsToControll[i])->AddMovementInput(DirectionVector);
+			
+		}
+			
+			//Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(Hit.ImpactPoint);
+		
+	}
+
+	
 }
 
 bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)

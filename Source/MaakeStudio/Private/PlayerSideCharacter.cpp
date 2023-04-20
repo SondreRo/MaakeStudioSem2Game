@@ -4,8 +4,11 @@
 #include "PlayerSideCharacter.h"
 #include "components/SphereComponent.h"
 #include "Interactables/Interactable.h"
+#include "PlayerCharacter.h"
+#include "EngineUtils.h"
 
 #include "AIController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 APlayerSideCharacter::APlayerSideCharacter()
@@ -16,7 +19,8 @@ APlayerSideCharacter::APlayerSideCharacter()
 	SphereCollider->SetupAttachment(GetRootComponent());
 
 	//OverlappingActors.Init(nullptr, 10);
-
+	HasInteractebleInRange = false;
+	HasInteractebleInRangeLastFrame = false;
 	
 }
 
@@ -33,6 +37,9 @@ void APlayerSideCharacter::BeginPlay()
 
 	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapBegin);
 	SphereCollider->OnComponentEndOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapEnd);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
 }
 
 // Called every frame
@@ -40,6 +47,15 @@ void APlayerSideCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	HasInteractebleInRange = !OverlappingActors.IsEmpty();
+
+	if (HasInteractebleInRange != HasInteractebleInRangeLastFrame)
+	{
+		InteractInRange();
+	}
+	
+	HasInteractebleInRangeLastFrame = HasInteractebleInRange;
+	
 }
 
 // Called to bind functionality to input
@@ -127,6 +143,33 @@ void APlayerSideCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AAc
 	{
 		OverlappingActors.RemoveSwap(InteractableActor, true);
 	}
+}
+
+void APlayerSideCharacter::InteractInRange()
+{
+	
+	FindAllActors(GetWorld(), PlayerCharacterArr);
+	
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("CanInteract"));
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,FString::FromInt(!OverlappingActors.IsEmpty()));
+	APlayerCharacter* PlayerCharacter = nullptr;
+	// if(PlayerCharacterArr.IsEmpty())
+	// {
+	// 	return;
+	// }
+	
+	for (int i{}; i < PlayerCharacterArr.Num(); i++)
+	{
+		PlayerCharacter = Cast<APlayerCharacter>(PlayerCharacterArr[i]);
+	}
+
+	if (PlayerCharacter == nullptr)
+	{
+		
+		return;
+	}
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("I have aids"));
+	PlayerCharacter->CanInteract = !OverlappingActors.IsEmpty();
 }
 
 

@@ -167,6 +167,7 @@ private:
 	
 
 	void ShootRayForSideCharacter();
+	void WalkSideCharacterToMouseCursor();
 	bool CheckSideCharacterLineOfSight(class APlayerCamera* CurrentCam);
 
 	//---------------TimerMethods-----------------------//
