@@ -164,8 +164,9 @@ private:
 	bool CheckCameraPlacement(FVector HitLocation);
 
 	void ChangeViewTarget(int CameraIndex);
-
+	
 	void ShootRayForSideCharacter();
+	void WalkSideCharacterToMouseCursor();
 	bool CheckSideCharacterLineOfSight(class APlayerCamera* CurrentCam);
 
 	//---------------TimerMethods-----------------------//
@@ -194,6 +195,10 @@ private:
 	TArray<APlayerSideCharacter*> AllActorsToControll;
 
 public:
+
+	bool isPossesed;
+	virtual void UnPossessed() override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 	float InputX;
@@ -205,7 +210,7 @@ public:
 	TEnumAsByte<ECollisionChannel> TraceChannelProperty;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
-	TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty = ECC_Pawn;
+	TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty;
 	
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	TEnumAsByte<ECollisionChannel> SideCharacterRayProperty;
@@ -237,14 +242,11 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	int MaxCameras;
 
-	
-
 	float Pitch;
 	float Yaw;
 
 	int CameraToChangeTo;
 	bool CameraViewMode;
-
 
 	FVector LineTraceLocation;
 	FRotator LineTraceNormal;
@@ -258,9 +260,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 	float RunSpeed;
 
-
 	//---------------Reset Variables-------------------//
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
-
 };

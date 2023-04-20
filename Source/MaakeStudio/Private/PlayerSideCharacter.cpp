@@ -4,8 +4,11 @@
 #include "PlayerSideCharacter.h"
 #include "components/SphereComponent.h"
 #include "Interactables/Interactable.h"
+#include "PlayerCharacter.h"
+#include "EngineUtils.h"
 
 #include "AIController.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 APlayerSideCharacter::APlayerSideCharacter()
@@ -16,7 +19,8 @@ APlayerSideCharacter::APlayerSideCharacter()
 	SphereCollider->SetupAttachment(GetRootComponent());
 
 	//OverlappingActors.Init(nullptr, 10);
-
+	HasInteractebleInRange = false;
+	HasInteractebleInRangeLastFrame = false;
 	
 }
 
@@ -33,6 +37,9 @@ void APlayerSideCharacter::BeginPlay()
 
 	SphereCollider->OnComponentBeginOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapBegin);
 	SphereCollider->OnComponentEndOverlap.AddDynamic(this, &APlayerSideCharacter::OnOverlapEnd);
+
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+
 }
 
 // Called every frame
@@ -40,6 +47,15 @@ void APlayerSideCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	HasInteractebleInRange = !OverlappingActors.IsEmpty();
+
+	if (HasInteractebleInRange != HasInteractebleInRangeLastFrame)
+	{
+		InteractInRange();
+	}
+	
+	HasInteractebleInRangeLastFrame = HasInteractebleInRange;
+	
 }
 
 // Called to bind functionality to input
@@ -91,13 +107,6 @@ void APlayerSideCharacter::Interact()
 
 void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//if (ActorHasTag("Interacteble"))
-	//{
-	//	OverlappingActors.Add(OtherActor);
-	//}
-
-	
-
 	AInteractable* InteractableActor = Cast<AInteractable>(OtherActor);
 
 	if (InteractableActor == nullptr)
@@ -115,7 +124,6 @@ void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, A
 
 void APlayerSideCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex)
 {
-
 	AInteractable* InteractableActor = Cast<AInteractable>(OtherActor);
 
 	if (InteractableActor == nullptr)
@@ -129,5 +137,28 @@ void APlayerSideCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AAc
 	}
 }
 
+void APlayerSideCharacter::InteractInRange()
+{
+	FindAllActors(GetWorld(), PlayerCharacterArr);
+	
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("CanInteract"));
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,FString::FromInt(!OverlappingActors.IsEmpty()));
+	APlayerCharacter* PlayerCharacter = nullptr;
+	// if(PlayerCharacterArr.IsEmpty())
+	// {
+	// 	return;
+	// }
+	
+	for (int i{}; i < PlayerCharacterArr.Num(); i++)
+	{
+		PlayerCharacter = Cast<APlayerCharacter>(PlayerCharacterArr[i]);
+	}
 
-
+	if (PlayerCharacter == nullptr)
+	{
+		
+		return;
+	}
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("I have aids"));
+	PlayerCharacter->CanInteract = !OverlappingActors.IsEmpty();
+}

@@ -2,15 +2,11 @@
 
 
 #include "Enemy/Security_Guard.h"
-
-#include <string>
-
 #include "AIController.h"
 #include "DrawDebugHelpers.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "EngineUtils.h"
-#include "Chaos/PBDSuspensionConstraintData.h"
 
 // Sets default values
 ASecurity_Guard::ASecurity_Guard()

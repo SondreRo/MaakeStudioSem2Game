@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "PlayerSideCharacter.generated.h"
+
 class AAIController;
 
 UCLASS()
@@ -20,8 +21,7 @@ public:
 	APlayerSideCharacter();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
-
-		class USphereComponent* SphereCollider;
+	class USphereComponent* SphereCollider;
 
 protected:
 	// Called when the game starts or when spawned
@@ -39,27 +39,39 @@ public:
 	AAIController* PlayerSideController;
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
-		void SoftReset();
+	void SoftReset();
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
-		void Interact();
+	void Interact();
 
 	//collision begin overlap
 	UFUNCTION()
-		void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnOverlapBegin(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 	//collision end overlap
 	UFUNCTION()
-		void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+	void OnOverlapEnd(class UPrimitiveComponent* OverlappedComp, class AActor* OtherActor, class UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 
 	UPROPERTY(EditAnywhere)
-		TArray<class AInteractable*> OverlappingActors;
-
+	TArray<class AInteractable*> OverlappingActors;
 
 private:
 
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
 
+	bool HasInteractebleInRange;
+	bool HasInteractebleInRangeLastFrame;
 	
+	void InteractInRange();
 
+	template<typename T>
+	void FindAllActors(UWorld* World, TArray<T*>& Out)
+	{
+		for (TActorIterator<T> It(World); It; ++It)
+		{
+			Out.Add(*It);
+		}
+	}
+
+	TArray<class APlayerCharacter*> PlayerCharacterArr;
 };
