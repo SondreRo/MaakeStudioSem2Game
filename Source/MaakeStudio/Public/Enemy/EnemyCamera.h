@@ -45,11 +45,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	UStaticMeshComponent* StaticMesh;
 	AAIController* EnemyCameraController;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	UPawnSensingComponent* TargetSensing;
 
 	FVector TargetSeenLocation;
 private:
 	void CastSecurityGuard();
-
-	UPROPERTY(VisibleAnywhere)
-	UPawnSensingComponent* TargetSensing;
 };
