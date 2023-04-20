@@ -24,9 +24,7 @@ public:
 	//	class USpringArmComponent* SpringArm{ nullptr };
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
-		class UCameraComponent* Camera{ nullptr };
-
-
+	class UCameraComponent* Camera{ nullptr };
 
 protected:
 	// Called when the game starts or when spawned
@@ -69,11 +67,11 @@ public:
 	class UInputAction* MainActionInput;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
-		class UInputAction* InteractInput;
+	class UInputAction* InteractInput;
 
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
-		class UInputAction* CameraModeToggleInput;
+	class UInputAction* CameraModeToggleInput;
 
 	//Keyboard Number Buttons
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = InputSystem)
@@ -86,7 +84,7 @@ public:
 
 
 	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
-		void UpdateHand(int ItemSlot);
+	void UpdateHand(int ItemSlot);
 
 
 	//Ghost Camera

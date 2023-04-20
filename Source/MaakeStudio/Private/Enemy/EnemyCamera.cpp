@@ -52,7 +52,6 @@ void AEnemyCamera::TargetSeen(APawn* Target)
 	}
 	if (Target->ActorHasTag("PlayerCharacter"))
 	{
-		
 	}
 }
 
