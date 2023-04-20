@@ -13,6 +13,7 @@ UENUM(BlueprintType)
 enum class EEnemyState : uint8
 {
 	Patrolling UMETA(DisplayName = "Patrolling"),
+	Checking UMETA(DisplayName = "Checking"),
 	Chasing UMETA(DisplayName = "Chasing"),
 	Waiting UMETA(DisplayName = "Waiting")
 };
@@ -37,17 +38,19 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	//Public Functions
+	//---------------------------//
+	//------Public Methods-------//
+	//---------------------------//
 	UFUNCTION()
 	void TargetSeen(APawn* Target);
+	UFUNCTION()
+	void SoftReset();
 
-	void SendChasingTarget(AActor* Target);
+	void SendChasingTarget(FVector& location);
 
-	AAIController* EnemyController;
-	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
-	TArray<AActor*> PatrolTargets;
-
-	//Public Variables
+	//---------------------------//
+	//------Public Variables-----//
+	//---------------------------//
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	bool PlayTest = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
@@ -61,18 +64,31 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	float ChaseSpeed;
 
+	AAIController* EnemyController;
+	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
+	TArray<AActor*> PatrolTargets;
+
 private:
-	//private Functions
+	//---------------------------//
+	//------Private Methods------//
+	//---------------------------//
+
+	void AI_TickRun(float DeltaTime);
+
+	//Movement Methods
 	void MoveToPoint();
 	void MoveToRandomPoint();
-	bool InTargetRange(AActor* Target, double Radius);
+	void MoveToLocation(FVector& location);
 	void MoveTo(AActor* Target);
-	void PauseWhenFinished(float DeltaTime);
-	void AggroTimer(float DeltaTime);
 	void ChasingTarget(APawn* Target);
 
+	//Other 
+	bool InTargetRange(AActor* Target, double Radius);
+	bool InTargetRange(FVector& location, double Radius);
+	void PauseWhenFinished(float DeltaTime);
+	void AggroTimer(float DeltaTime);
 	void AddPatrolTargets();
-	void SoftReset();
+	void CheckingLocation();
 
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* TargetSensing;
@@ -81,10 +97,13 @@ private:
 	TArray<AActor*> TestTargets;
 	AActor* PatrolTarget;
 	AActor* ChaseTarget;
+	
 	//private Variables
 	FVector SpawnLocation;
+	FVector CheckLocation;
 	int PatrolTargetNumber;
 	double PatrolRadius;
+	double CheckRadius;
 	bool Waiting;
 	float WaitTimer;
 	float AggroTime;

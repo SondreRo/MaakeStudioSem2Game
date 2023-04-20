@@ -102,9 +102,10 @@ public:
 	void SoftReset(bool DeleteCameras);
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
-	void AddGameScore(float inScore);
+	void AddGameScore(float inScore, int inType);
 	
-	float Update;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	bool CanInteract;
 
 	UPROPERTY(BlueprintReadWrite)
 	float Timer;
@@ -130,6 +131,8 @@ private:
 	void MainInteractEnd(const FInputActionValue& input);
 
 	void InteractStarted(const FInputActionValue& input);
+	void InteractTrigger(const FInputActionValue& input);
+	void InteractEnd(const FInputActionValue& input);
 
 
 	void DeleteTrigger(const FInputActionValue& input);
@@ -161,15 +164,15 @@ private:
 	bool CheckCameraPlacement(FVector HitLocation);
 
 	void ChangeViewTarget(int CameraIndex);
-
+	
 	void ShootRayForSideCharacter();
+	void WalkSideCharacterToMouseCursor();
 	bool CheckSideCharacterLineOfSight(class APlayerCamera* CurrentCam);
 
 	//---------------TimerMethods-----------------------//
 	void SeenPlacingCameraTimer(float DeltaTime);
 
 	//---------------PrivateVariables-------------------//
-	
 	bool HoldingInteractButton;
 	bool SeenPlacingCamera;
 	float SusTimer;
@@ -192,6 +195,10 @@ private:
 	TArray<APlayerSideCharacter*> AllActorsToControll;
 
 public:
+
+	bool isPossesed;
+	virtual void UnPossessed() override;
+	virtual void PossessedBy(AController* NewController) override;
 	
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "PlayerVariables")
 	float InputX;
@@ -203,7 +210,7 @@ public:
 	TEnumAsByte<ECollisionChannel> TraceChannelProperty;
 
 	UPROPERTY(EditAnywhere, Category = "Collision")
-	TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty = ECC_Pawn;
+	TEnumAsByte<ECollisionChannel> SelectTraceChannelProperty;
 	
 	UPROPERTY(EditAnywhere, Category = "Collision")
 	TEnumAsByte<ECollisionChannel> SideCharacterRayProperty;
@@ -235,14 +242,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	int MaxCameras;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "My Variables")
+	bool CameraViewMode;
 	
-
 	float Pitch;
 	float Yaw;
 
 	int CameraToChangeTo;
-	bool CameraViewMode;
-
 
 	FVector LineTraceLocation;
 	FRotator LineTraceNormal;
@@ -256,9 +262,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables")
 	float RunSpeed;
 
-
+	//---------------Task Variables-------------------//
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasStolenPainting; // 1
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasStolenStatue;	// 2
+	
 	//---------------Reset Variables-------------------//
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
-
 };

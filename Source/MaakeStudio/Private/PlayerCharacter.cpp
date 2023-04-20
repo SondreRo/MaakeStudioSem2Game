@@ -77,6 +77,8 @@ APlayerCharacter::APlayerCharacter()
 	SeenPlacingCamera = false;
 	TotalSusTime = 2;
 	SusTimer = 0;
+	CanInteract = true;
+	isPossesed = true;
 }
 
 // Called when the game starts or when spawned
@@ -116,7 +118,10 @@ void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	
+	if (!PlayerController || !isPossesed)
+	{
+		return;
+	}
 	CharMovement();
 
 	AddControllerYawInput(Yaw);
@@ -168,8 +173,9 @@ void APlayerCharacter::SelectMode()
 
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, SelectTraceChannelProperty, QueryParams);
-
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, SelectTraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
+	
 	bool HasHitCamera = false;
 	//GEngine->AddOnScreenDebugMessage(-1, 3, FColor::Green, TEXT("Ray"));
 	for (int i{}; i < SpawnedPlayerCameraArray.Num(); i++)
@@ -191,11 +197,7 @@ void APlayerCharacter::SelectMode()
 		SelectedCamera = nullptr;
 	}
 
-
-
 }
-
-
 
 void APlayerCharacter::PlaceGhostCamera()
 {
@@ -207,7 +209,8 @@ void APlayerCharacter::PlaceGhostCamera()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECC_Camera, QueryParams);
 
 	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 10.0f);
 	//DrawDebugSphere(GetWorld(), Hit.ImpactPoint, 4.f, 4, FColor::Red, false, 0.3f, 0, 1.f);
@@ -355,6 +358,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Triggered, this, &APlayerCharacter::InteractTrigger);
+		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Completed, this, &APlayerCharacter::InteractEnd);
 
 		//Delete
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
@@ -387,13 +392,25 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 
 }
 
-void APlayerCharacter::AddGameScore(float inScore)
+void APlayerCharacter::AddGameScore(float inScore, int inType)
 {
 	GameScore += inScore;
 
 	FString textToPrint = FString::SanitizeFloat(GameScore);
-	
+	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,TEXT("TEST"));
 	GEngine->AddOnScreenDebugMessage(-1,3,FColor::Green,textToPrint);
+
+	switch(inType) {
+	case 1:
+		HasStolenPainting = true;
+		break;
+	case 2:
+		HasStolenStatue = true;
+		break;
+	default:
+		GEngine->AddOnScreenDebugMessage(-1,5,FColor::Green,TEXT("No Index For AddGameScore"));
+	}
+	
 }
 
 void APlayerCharacter::MovementForwardBack(const FInputActionValue& input)
@@ -554,12 +571,17 @@ void APlayerCharacter::RunEnd(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 {
+	
+		if (AllActorsToControll.Num() == 0)
+		{
+			return;
+		}
+			
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(AllActorsToControll[i]->GetActorLocation());
+		}
 
-	if (CameraViewMode)
-	{
-		ShootRayForSideCharacter();
-		return;
-	}
 
 	if (!HoldingInteractButton)
 	{
@@ -590,16 +612,9 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 
 	if (CameraViewMode)
 	{
+		WalkSideCharacterToMouseCursor();
 		return;
 	}
-
-
-	Timer++;
-	if (Timer > 100)
-	{
-		Timer = 0;
-	}
-
 
 	if (!HoldingInteractButton)
 	{
@@ -630,6 +645,12 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 {
+
+	if (CameraViewMode)
+	{
+		ShootRayForSideCharacter();
+		return;
+	}
 	Timer = 0;
 
 	DestroyGhostCam();
@@ -658,18 +679,34 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
 	
+}
 
-	if (AllActorsToControll.IsEmpty())
+void APlayerCharacter::InteractTrigger(const FInputActionValue& input)
+{
+	if (!CanInteract)
 	{
 		return;
 	}
-
-	for (int i{}; i < AllActorsToControll.Num(); i++)
+	Timer++;
+	if (Timer > 100)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
-		AllActorsToControll[i]->Interact();
-	}
+		if (AllActorsToControll.IsEmpty())
+		{
+			return;
+		}
 
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("OneButtonPress"));
+			AllActorsToControll[i]->Interact();
+		}
+		Timer = 0;
+	}
+}
+
+void APlayerCharacter::InteractEnd(const FInputActionValue& input)
+{
+	Timer = 0;
 }
 
 void APlayerCharacter::SwapToolOne(const FInputActionValue& input)
@@ -779,12 +816,7 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		EViewTargetBlendFunction::VTBlend_Cubic,
 		1.f,
 		true);
-
-
 }
-
-
-
 
 void APlayerCharacter::ShootRayForSideCharacter()
 {
@@ -804,8 +836,6 @@ void APlayerCharacter::ShootRayForSideCharacter()
 		return;
 	}
 
-	
-
 	FHitResult Hit;
 	FVector TraceStart = CurrentCamTest->Camera->GetComponentLocation();
 	FVector TraceEnd = TraceStart + (CurrentCamTest->Camera->GetForwardVector() * SideCharacterRayLength);
@@ -813,8 +843,9 @@ void APlayerCharacter::ShootRayForSideCharacter()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(CurrentCamTest);
 
-	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
-
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
+	
 	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 3.0f);
 
 	if (Hit.GetActor())
@@ -822,7 +853,6 @@ void APlayerCharacter::ShootRayForSideCharacter()
 		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
 
 	}
-
 
 	if (CheckSideCharacterLineOfSight(CurrentCamTest))
 	{
@@ -842,13 +872,65 @@ void APlayerCharacter::ShootRayForSideCharacter()
 	}
 }
 
+void APlayerCharacter::WalkSideCharacterToMouseCursor()
+{
+	if (!CameraViewMode)
+	{
+		return;
+	}
+
+	APlayerCamera* CurrentCamTest;
+
+	if (Cast<APlayerCamera>(CurrentActiveCamera))
+	{
+		CurrentCamTest = Cast<APlayerCamera>(CurrentActiveCamera);
+	}
+	else
+	{
+		return;
+	}
+
+	FHitResult Hit;
+	FVector TraceStart = CurrentCamTest->Camera->GetComponentLocation();
+	FVector TraceEnd = TraceStart + (CurrentCamTest->Camera->GetForwardVector() * SideCharacterRayLength);
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(CurrentCamTest);
+
+	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
+
+	if (Hit.ImpactPoint != FVector(0, 0, 0))
+	{
+		if (AllActorsToControll.Num() == 0)
+		{
+			return;
+		}
+			
+		for (int i{}; i < AllActorsToControll.Num(); i++)
+		{
+			FVector SideLocation = AllActorsToControll[i]->GetActorLocation();
+
+			FVector MouseLocation = Hit.Location;
+
+			FVector DirectionVector = MouseLocation - SideLocation;
+			DirectionVector.Normalize();
+
+			Cast<APlayerSideCharacter>(AllActorsToControll[i])->AddMovementInput(DirectionVector);
+		}
+			//Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(Hit.ImpactPoint);
+	}
+}
+
 bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 {
+	//This is temp
+	return true;
+	
 	if (AllActorsToControll.Num() == 0)
 	{
 		return false;
 	}
-
 
 	FHitResult Hit;
 	FVector TraceStart = CurrentCam->Camera->GetComponentLocation();
@@ -870,7 +952,6 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 	return false;
 }
 
-
 void APlayerCharacter::SeenPlacingCameraTimer(float DeltaTime)
 {
 	if (SeenPlacingCamera == false)
@@ -886,4 +967,24 @@ void APlayerCharacter::SeenPlacingCameraTimer(float DeltaTime)
 		Tags.RemoveSingle(FName("Sus"));
 		SeenPlacingCamera = false;
 	}
+}
+
+void APlayerCharacter::UnPossessed()
+{
+	Super::UnPossessed();
+
+	isPossesed = false;
+}
+
+void APlayerCharacter::PossessedBy(AController* NewController)
+{
+	Super::PossessedBy(NewController);
+	isPossesed = true;
+	GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("ISPossesed"));
+	
+	int ParameterToPass = CameraToChangeTo ; // You can use any supported variable type
+
+	FTimerHandle TimerHandle;
+	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APlayerCharacter::ChangeViewTarget, ParameterToPass);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.2, false);
 }
