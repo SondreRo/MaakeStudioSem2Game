@@ -54,7 +54,7 @@ void APlayerCamera::Tick(float DeltaTime)
 
 void APlayerCamera::CamSelected()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Camselected"));
+	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Camselected"));
 	Indicator->SetHiddenInGame(false);
 	
 

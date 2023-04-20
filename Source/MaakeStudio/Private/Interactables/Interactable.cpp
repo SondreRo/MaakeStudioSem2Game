@@ -38,7 +38,7 @@ void AInteractable::Tick(float DeltaTime)
 
 void AInteractable::Interacted()
 {
-	GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM THE MASTER"));
+	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM THE MASTER"));
 
 }
 
@@ -52,14 +52,14 @@ void AInteractable::CastToPlayer()
 	FindAllActors(GetWorld(), AllPlayers);
 	if (AllPlayers.IsEmpty())
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No player character"));
+		//GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("No player character"));
 		UE_LOG(LogTemp, Warning, TEXT("No player character"))
 			return;
 	}
 
 	if (AllPlayers.Num() > 1)
 	{
-		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("More then 1 player character"));
+		//GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("More then 1 player character"));
 		UE_LOG(LogTemp, Warning, TEXT("More then 1 player character"))
 			return;
 	}
