@@ -88,6 +88,8 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
 		void UpdateHand(int ItemSlot);
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
+	void UpdateSun(bool IsInCameraMode);
 
 	//Ghost Camera
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));

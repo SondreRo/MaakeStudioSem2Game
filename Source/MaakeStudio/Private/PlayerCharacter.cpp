@@ -388,7 +388,11 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 		DeleteAllCameras();
 	}
 		
-	
+	ChangeViewTarget(-1);
+	CameraViewMode = false;
+
+	HasStolenPainting = false;
+	HasStolenStatue = false;
 
 }
 
@@ -768,10 +772,16 @@ void APlayerCharacter::ScrollWheelTrigger(const FInputActionValue& input)
 
 void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 {
+	
+	
+	
 	if (PlayerController == nullptr)
 	{
 		return;
 	}
+
+	
+	
 	if (SpawnedPlayerCameraArray.IsEmpty())
 	{
 		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("CantChangeCam"));
@@ -810,6 +820,7 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 	}
 	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("ChanginViewTarget"));
 
+	UpdateSun(CameraIndex >= 0 );
 	PlayerController->SetViewTargetWithBlend(
 		NewViewTarget,
 		0.5f,
