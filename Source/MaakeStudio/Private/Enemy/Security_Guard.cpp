@@ -11,7 +11,7 @@
 // Sets default values
 ASecurity_Guard::ASecurity_Guard()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
+	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	TargetSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("TargetSensing"));
@@ -29,7 +29,7 @@ ASecurity_Guard::ASecurity_Guard()
 	WalkSpeed = 200;
 	ChaseSpeed = 400;
 	CatchedPlayer = false;
-}
+	}
 
 // Called when the game starts or when spawned
 void ASecurity_Guard::BeginPlay()
@@ -301,7 +301,6 @@ void ASecurity_Guard::SoftReset()
 	EnemyState = EEnemyState::Patrolling;
 	CatchedPlayer = false;
 	AggroTime = 0;
-
 	if (PatrolTarget != nullptr)
 	{
 		MoveTo(PatrolTarget);
@@ -310,6 +309,7 @@ void ASecurity_Guard::SoftReset()
 
 void ASecurity_Guard::SendChasingTarget(FVector& location)
 {
+	
 	if (EnemyState != EEnemyState::Checking)
 	{
 		EnemyState = EEnemyState::Checking;
