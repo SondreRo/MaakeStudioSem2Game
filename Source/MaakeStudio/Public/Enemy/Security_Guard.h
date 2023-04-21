@@ -43,7 +43,7 @@ public:
 	//---------------------------//
 	UFUNCTION()
 	void TargetSeen(APawn* Target);
-	UFUNCTION()
+	UFUNCTION(CallInEditor, BlueprintCallable)
 	void SoftReset();
 
 	void SendChasingTarget(FVector& location);
