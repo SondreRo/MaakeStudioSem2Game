@@ -57,6 +57,7 @@ void APlayerCamera::CamSelected()
 	//GEngine->AddOnScreenDebugMessage(-1, 1, FColor::Red, TEXT("Camselected"));
 	Indicator->SetHiddenInGame(false);
 	
+
 	//StaticMesh->SetMaterialByName()
 }
 

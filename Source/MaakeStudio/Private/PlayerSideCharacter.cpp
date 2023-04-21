@@ -155,7 +155,6 @@ void APlayerSideCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AAc
 
 void APlayerSideCharacter::InteractInRange()
 {
-
 	FindAllActors(GetWorld(), PlayerCharacterArr);
 	
 	//GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("CanInteract"));
@@ -173,7 +172,6 @@ void APlayerSideCharacter::InteractInRange()
 
 	if (PlayerCharacter == nullptr)
 	{
-		
 		return;
 	}
 	//GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("I have aids"));

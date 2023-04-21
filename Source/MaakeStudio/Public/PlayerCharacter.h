@@ -215,7 +215,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|Score")
 	float GameScore;
-
 	
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	float RayLength;
@@ -235,7 +234,6 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	AActor* CurrentActiveCamera;
-
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	int MaxCameras;

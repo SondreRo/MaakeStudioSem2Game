@@ -473,7 +473,6 @@ void APlayerCharacter::CameraYaw(const FInputActionValue& input)
 {
 	if (CameraViewMode)
 	{
-
 		if (CurrentActiveCamera)
 		{
 			Cast<APlayerCamera>(CurrentActiveCamera)->AddCameraYaw(input.Get<float>());
@@ -534,7 +533,6 @@ void APlayerCharacter::RunEnd(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 {
-	
 		if (AllActorsToControll.Num() == 0)
 		{
 			return;
@@ -544,7 +542,6 @@ void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 		{
 			Cast<APlayerSideCharacter>(AllActorsToControll[i])->WalkToPoint(AllActorsToControll[i]->GetActorLocation());
 		}
-
 
 	if (!HoldingInteractButton)
 	{
@@ -679,7 +676,6 @@ void APlayerCharacter::SwapToolOne(const FInputActionValue& input)
 
 void APlayerCharacter::SwapToolTwo(const FInputActionValue& input)
 {
-	
 	if (HoldingInteractButton)
 	{
 		return;
@@ -720,16 +716,11 @@ void APlayerCharacter::ScrollWheelTrigger(const FInputActionValue& input)
 
 void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 {
-	if (PlayerController == nullptr)
+	if (PlayerController == nullptr || SpawnedPlayerCameraArray.IsEmpty())
 	{
 		return;
 	}
-	if (SpawnedPlayerCameraArray.IsEmpty())
-	{
-		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("CantChangeCam"));
-		return;
 
-	}
 	AActor* NewViewTarget = nullptr;
 	if (CameraIndex <= -1)
 	{
@@ -798,7 +789,6 @@ void APlayerCharacter::ShootRayForSideCharacter()
 	if (Hit.GetActor())
 	{
 		UE_LOG(LogTemp, Log, TEXT("Trace hit actor: %s"), *Hit.GetActor()->GetName());
-
 	}
 
 	if (CheckSideCharacterLineOfSight(CurrentCamTest))
@@ -892,7 +882,7 @@ bool APlayerCharacter::CheckSideCharacterLineOfSight(APlayerCamera* CurrentCam)
 
 	if (Hit.GetActor() == AllActorsToControll[0])
 	{
-				return true;
+		return true;
 	}
 
 	return false;
