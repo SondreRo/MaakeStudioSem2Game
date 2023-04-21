@@ -15,7 +15,7 @@ ASecurity_Guard::ASecurity_Guard()
 	PrimaryActorTick.bCanEverTick = true;
 
 	TargetSensing = CreateDefaultSubobject<UPawnSensingComponent>(TEXT("TargetSensing"));
-	TargetSensing->SightRadius = 4000.f;
+	TargetSensing->SightRadius = 2000.f;
 	TargetSensing->SetPeripheralVisionAngle(45.f);
 	TargetSensing->bOnlySensePlayers = false;
 
@@ -26,10 +26,10 @@ ASecurity_Guard::ASecurity_Guard()
 	TotalWaitTime = 4;
 	AggroTime = 0;
 	TotalAggroTime = 2;
-	WalkSpeed = 200;
-	ChaseSpeed = 400;
+	WalkSpeed = 100;
+	ChaseSpeed = 300;
 	CatchedPlayer = false;
-	}
+}
 
 // Called when the game starts or when spawned
 void ASecurity_Guard::BeginPlay()
@@ -221,11 +221,6 @@ bool ASecurity_Guard::InTargetRange(FVector& location, double Radius)
 {
 	const double DistanceToTarget = (location - this->GetActorLocation()).Size();
 
-	//FString text2 = location.ToString();
-	//FString text = FString::SanitizeFloat(DistanceToTarget);
-	//GEngine->AddOnScreenDebugMessage(6, 3, FColor::Green, text2);
-	//GEngine->AddOnScreenDebugMessage(5, 3, FColor::Green, text);
-
 	return FMath::Abs(DistanceToTarget) <= Radius;
 }
 
@@ -282,11 +277,7 @@ void ASecurity_Guard::CheckingLocation()
 
 void ASecurity_Guard::TargetSeen(APawn* Target)
 {
-	if (Target->ActorHasTag("PlayerSideCharacter"))
-	{
-		ChasingTarget(Target);
-	}
-	if (Target->ActorHasTag("Sus"))
+	if (Target->ActorHasTag("PlayerSideCharacter") || Target->ActorHasTag("Sus"))
 	{
 		ChasingTarget(Target);
 	}
@@ -301,6 +292,7 @@ void ASecurity_Guard::SoftReset()
 	EnemyState = EEnemyState::Patrolling;
 	CatchedPlayer = false;
 	AggroTime = 0;
+
 	if (PatrolTarget != nullptr)
 	{
 		MoveTo(PatrolTarget);
@@ -309,7 +301,6 @@ void ASecurity_Guard::SoftReset()
 
 void ASecurity_Guard::SendChasingTarget(FVector& location)
 {
-	
 	if (EnemyState != EEnemyState::Checking)
 	{
 		EnemyState = EEnemyState::Checking;
