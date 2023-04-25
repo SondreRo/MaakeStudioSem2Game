@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void Interacted();
 
+	UFUNCTION(BlueprintCallable)
+	virtual void InteractedEnd();
+
 	UFUNCTION(blueprintcallable)
 	virtual void SoftReset();
 

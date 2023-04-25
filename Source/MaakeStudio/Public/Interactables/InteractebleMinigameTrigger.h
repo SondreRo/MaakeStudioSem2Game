@@ -6,23 +6,40 @@
 #include "Interactables/Interactable.h"
 #include "InteractebleMinigameTrigger.generated.h"
 
-/**
- * 
- */
+class ASecurity_Guard;
+
 UCLASS()
 class MAAKESTUDIO_API AInteractebleMinigameTrigger : public AInteractable
 {
 	GENERATED_BODY()
 
 	AInteractebleMinigameTrigger();
-	
-	virtual void Interacted() override;
-
-
-private:
-	APlayerController* PlayerController;
 
 public:
-	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+
+protected:
+	virtual void BeginPlay() override;
+public:
+	virtual void Interacted() override;
+	virtual void InteractedEnd() override;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	class AMiniGamePawn* MinigameToPosses;
+
+	template<typename T>
+	void FindAllActors(UWorld* World, TArray<T*>& Out)
+	{
+		for (TActorIterator<T> It(World); It; ++It)
+		{
+			Out.Add(*It);
+		}
+	}
+
+	TArray<ASecurity_Guard*> AllSecurityGuards;
+	ASecurity_Guard* SecurityGuard;
+
+private:
+	void CastToSecurityGuard();
+
+	APlayerController* PlayerController;
 };

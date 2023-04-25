@@ -15,7 +15,8 @@ enum class EEnemyState : uint8
 	Patrolling UMETA(DisplayName = "Patrolling"),
 	Checking UMETA(DisplayName = "Checking"),
 	Chasing UMETA(DisplayName = "Chasing"),
-	Waiting UMETA(DisplayName = "Waiting")
+	Waiting UMETA(DisplayName = "Waiting"),
+	Frozen UMETA(DisplayName = "Frozen")
 };
 
 UCLASS()
@@ -47,6 +48,8 @@ public:
 	void SoftReset();
 
 	void SendChasingTarget(FVector& location);
+	void FreezeWhileMinigame();
+	void UnFreezeAfterMinigame();
 
 	//---------------------------//
 	//------Public Variables-----//
@@ -93,6 +96,7 @@ private:
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* TargetSensing;
 	EEnemyState EnemyState;
+	EEnemyState TempEnemyState;
 
 	TArray<AActor*> TestTargets;
 	AActor* PatrolTarget;
@@ -101,6 +105,7 @@ private:
 	//private Variables
 	FVector SpawnLocation;
 	FVector CheckLocation;
+	FVector TempLocation;
 	int PatrolTargetNumber;
 	double PatrolRadius;
 	double CheckRadius;
@@ -108,4 +113,5 @@ private:
 	float WaitTimer;
 	float AggroTime;
 	bool CatchedPlayer;
+	float TempSpeed;
 };

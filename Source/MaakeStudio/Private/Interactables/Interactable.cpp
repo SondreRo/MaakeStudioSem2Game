@@ -42,6 +42,11 @@ void AInteractable::Interacted()
 
 }
 
+void AInteractable::InteractedEnd()
+{
+	
+}
+
 void AInteractable::SoftReset()
 {
 	
