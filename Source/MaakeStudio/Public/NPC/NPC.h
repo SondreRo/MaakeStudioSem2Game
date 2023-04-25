@@ -10,7 +10,8 @@ UENUM(BlueprintType)
 enum class ENPCState : uint8
 {
 	Walking UMETA(DisplayName = "Walking"),
-	Waiting UMETA(DisplayName = "Waiting")
+	Waiting UMETA(DisplayName = "Waiting"),
+	DeSpawned UMETA(DisplayName = "DeSpawned")
 };
 
 class AAIController;
@@ -35,6 +36,11 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	UFUNCTION(BlueprintCallable)
+	void DeSpawnNPC();
+	UFUNCTION(BlueprintCallable)
+	void SoftReset();
+
 	AAIController* NPCController;
 	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
 	TArray<AActor*> WalkTargets;
@@ -51,7 +57,6 @@ private:
 	void MoveTo(AActor* Target);
 	bool InTargetRange(AActor* Target, double Radius);
 	void WaitTimer(float DeltaTime);
-	void SoftReset();
 	void CheckStandingStill(float DeltaTime);
 
 	ENPCState NPCState;
