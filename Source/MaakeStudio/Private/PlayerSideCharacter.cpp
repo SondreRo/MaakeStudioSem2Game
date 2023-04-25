@@ -19,8 +19,8 @@ APlayerSideCharacter::APlayerSideCharacter()
 	SphereCollider->SetupAttachment(GetRootComponent());
 
 	//OverlappingActors.Init(nullptr, 10);
-	HasInteractebleInRange = false;
-	HasInteractebleInRangeLastFrame = false;
+	HasInteractableInRange = false;
+	HasInteractableInRangeLastFrame = false;
 	
 }
 
@@ -47,14 +47,14 @@ void APlayerSideCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
-	HasInteractebleInRange = !OverlappingActors.IsEmpty();
+	HasInteractableInRange = !OverlappingActors.IsEmpty();
 
-	if (HasInteractebleInRange != HasInteractebleInRangeLastFrame)
+	if (HasInteractableInRange != HasInteractableInRangeLastFrame)
 	{
 		InteractInRange();
 	}
 	
-	HasInteractebleInRangeLastFrame = HasInteractebleInRange;
+	HasInteractableInRangeLastFrame = HasInteractableInRange;
 	
 }
 
@@ -150,6 +150,10 @@ void APlayerSideCharacter::OnOverlapEnd(UPrimitiveComponent* OverlappedComp, AAc
 	if (OverlappingActors.Contains(InteractableActor) )
 	{
 		OverlappingActors.RemoveSwap(InteractableActor, true);
+	}
+	if (InteractableActor->ActorHasTag("MiniGameTrigger"))
+	{
+		InteractableActor->InteractedEnd();
 	}
 }
 

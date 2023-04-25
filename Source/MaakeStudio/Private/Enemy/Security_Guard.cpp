@@ -27,7 +27,7 @@ ASecurity_Guard::ASecurity_Guard()
 	AggroTime = 0;
 	TotalAggroTime = 2;
 	WalkSpeed = 100;
-	ChaseSpeed = 300;
+	ChaseSpeed = 600;
 	CatchedPlayer = false;
 }
 
@@ -39,6 +39,7 @@ void ASecurity_Guard::BeginPlay()
 	EnemyController = Cast<AAIController>(GetController());
 	SpawnLocation = GetActorLocation();
 	EnemyState = EEnemyState::Patrolling;
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 
 	if (TargetSensing != nullptr)
 	{
@@ -155,6 +156,8 @@ void ASecurity_Guard::MoveToLocation(FVector& location)
 		return;
 	}
 
+	TempLocation = location;
+
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(location);
 	MoveRequest.SetAcceptanceRadius(15.f);
@@ -170,6 +173,8 @@ void ASecurity_Guard::MoveTo(AActor* Target)
 	{
 		return;
 	}
+
+	TempLocation = Target->GetActorLocation();
 
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalActor(Target);
@@ -195,7 +200,7 @@ void ASecurity_Guard::ChasingTarget(APawn* Target)
 	if (EnemyState != EEnemyState::Chasing)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Target Located!"))
-			EnemyState = EEnemyState::Chasing;
+		EnemyState = EEnemyState::Chasing;
 		GetCharacterMovement()->MaxWalkSpeed = ChaseSpeed;
 		ChaseTarget = Target;
 		MoveTo(ChaseTarget);
@@ -243,6 +248,7 @@ void ASecurity_Guard::AggroTimer(float DeltaTime)
 	if (AggroTime >= TotalAggroTime)
 	{
 		EnemyState = EEnemyState::Patrolling;
+		GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 		UE_LOG(LogTemp, Warning, TEXT("Target Escaped!"))
 		MoveTo(PatrolTarget);
 	}
@@ -277,7 +283,7 @@ void ASecurity_Guard::CheckingLocation()
 
 void ASecurity_Guard::TargetSeen(APawn* Target)
 {
-	if (Target->ActorHasTag("PlayerSideCharacter") || Target->ActorHasTag("Sus"))
+	if (Target->ActorHasTag("PlayerSideCharacter") && EnemyState != EEnemyState::Frozen || Target->ActorHasTag("Sus"))
 	{
 		ChasingTarget(Target);
 	}
@@ -301,10 +307,30 @@ void ASecurity_Guard::SoftReset()
 
 void ASecurity_Guard::SendChasingTarget(FVector& location)
 {
-	if (EnemyState != EEnemyState::Checking)
+	if (EnemyState != EEnemyState::Checking && EnemyState != EEnemyState::Frozen)
 	{
 		EnemyState = EEnemyState::Checking;
-		MoveToLocation(location);
 		CheckLocation = location;
+		MoveToLocation(CheckLocation);
 	}
+}
+
+void ASecurity_Guard::FreezeWhileMinigame()
+{
+	TempEnemyState = EnemyState;
+	TempSpeed = GetCharacterMovement()->MaxWalkSpeed;
+
+	EnemyState = EEnemyState::Frozen;
+	GetCharacterMovement()->MaxWalkSpeed = 0;
+
+	UE_LOG(LogTemp, Warning, TEXT("Security Guard Froze"))
+}
+
+void ASecurity_Guard::UnFreezeAfterMinigame()
+{
+	EnemyState = TempEnemyState;
+	GetCharacterMovement()->MaxWalkSpeed = TempSpeed;
+	MoveToLocation(TempLocation);
+
+	UE_LOG(LogTemp, Warning, TEXT("Security Guard UnFroze"))
 }

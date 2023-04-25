@@ -52,12 +52,11 @@ public:
 	TArray<class AInteractable*> OverlappingActors;
 
 private:
-
 	FVector SpawnLocation;
 	FRotator SpawnRotation;
 
-	bool HasInteractebleInRange;
-	bool HasInteractebleInRangeLastFrame;
+	bool HasInteractableInRange;
+	bool HasInteractableInRangeLastFrame;
 	
 	void InteractInRange();
 
