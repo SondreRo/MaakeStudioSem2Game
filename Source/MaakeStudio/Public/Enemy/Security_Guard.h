@@ -39,9 +39,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(UInputComponent* PlayerInputComponent) override;
 
-	//---------------------------//
-	//------Public Methods-------//
-	//---------------------------//
+	//Public Methods
 	UFUNCTION()
 	void TargetSeen(APawn* Target);
 	UFUNCTION(CallInEditor, BlueprintCallable)
@@ -51,9 +49,7 @@ public:
 	void FreezeWhileMinigame();
 	void UnFreezeAfterMinigame();
 
-	//---------------------------//
-	//------Public Variables-----//
-	//---------------------------//
+	//Public Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	bool PlayTest = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
@@ -67,15 +63,12 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	float ChaseSpeed;
 
-	AAIController* EnemyController;
 	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
 	TArray<AActor*> PatrolTargets;
+	AAIController* EnemyController;
 
 private:
-	//---------------------------//
-	//------Private Methods------//
-	//---------------------------//
-
+	//Private Methods
 	void AI_TickRun(float DeltaTime);
 
 	//Movement Methods
@@ -93,16 +86,15 @@ private:
 	void AddPatrolTargets();
 	void CheckingLocation();
 
+	//Private Variables
 	UPROPERTY(VisibleAnywhere)
 	UPawnSensingComponent* TargetSensing;
-	EEnemyState EnemyState;
-	EEnemyState TempEnemyState;
-
 	TArray<AActor*> TestTargets;
 	AActor* PatrolTarget;
 	AActor* ChaseTarget;
-	
-	//private Variables
+
+	EEnemyState EnemyState;
+	EEnemyState TempEnemyState;
 	FVector SpawnLocation;
 	FVector CheckLocation;
 	FVector TempLocation;

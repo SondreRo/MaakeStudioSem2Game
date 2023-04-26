@@ -15,7 +15,7 @@ ANPC::ANPC()
 	TotalWaitTime = 4;
 	WalkRadius = 175;
 	WalkSpeed = 200;
-	TotalStillTime = 0.5f;
+	TotalStillTime = 0.25f;
 }
 
 // Called when the game starts or when spawned
@@ -58,34 +58,36 @@ void ANPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+//---------------------------//
+//------Private Methods------//
+//---------------------------//
+
+/*-----Movement Methods------*/
 void ANPC::MoveToRandomPoint()
 {
-	if (WalkTargets.Num() < 2)
+	if (WalkTargets.Num() < 2 || InTargetRange(WalkTarget, WalkRadius) != true)
 	{
 		return;
 	}
 
-	if (InTargetRange(WalkTarget, WalkRadius))
+	TArray<AActor*> ValidTargets;
+	for (AActor* Target : WalkTargets)
 	{
-		TArray<AActor*> ValidTargets;
-		for (AActor* Target : WalkTargets)
+		if (Target != WalkTarget)
 		{
-			if (Target != WalkTarget)
-			{
-				ValidTargets.AddUnique(Target);
-			}
+			ValidTargets.AddUnique(Target);
 		}
+	}
 
-		const int32 NumPatrolTargets = ValidTargets.Num();
-		if (NumPatrolTargets > 0)
-		{
-			const int32 TargetSelection = FMath::RandRange(0, NumPatrolTargets - 1);
-			AActor* Target = ValidTargets[TargetSelection];
-			WalkTarget = Target;
+	const int32 NumPatrolTargets = ValidTargets.Num();
+	if (NumPatrolTargets > 0)
+	{
+		const int32 TargetSelection = FMath::RandRange(0, NumPatrolTargets - 1);
+		AActor* Target = ValidTargets[TargetSelection];
+		WalkTarget = Target;
 
-			WaitTime = 0;
-			NPCState = ENPCState::Waiting;
-		}
+		WaitTime = 0;
+		NPCState = ENPCState::Waiting;
 	}
 }
 
@@ -136,6 +138,8 @@ bool ANPC::InTargetRange(AActor* Target, double Radius)
 	return FMath::Abs(DistanceToTarget) <= Radius;
 }
 
+
+/*-------Timer Methods--------*/
 void ANPC::WaitTimer(float DeltaTime)
 {
 	WaitTime += DeltaTime;
@@ -151,7 +155,7 @@ void ANPC::WaitTimer(float DeltaTime)
 
 void ANPC::CheckStandingStill(float DeltaTime)
 {
-	if (GetCharacterMovement()->GetCurrentAcceleration().Size() <= 100)
+	if (GetCharacterMovement()->GetLastUpdateVelocity().Size() <= 10)
 	{
 		StandingStillTime += DeltaTime;
 	}
@@ -179,6 +183,6 @@ void ANPC::SoftReset()
 {
 	SetActorEnableCollision(true);
 	SetActorHiddenInGame(false);
-	MoveToRandomPoint();
 	NPCState = ENPCState::Walking;
+	MoveToRandomPoint();
 }

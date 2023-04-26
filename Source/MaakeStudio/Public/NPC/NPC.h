@@ -36,15 +36,13 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	//Public Methods
 	UFUNCTION(BlueprintCallable)
 	void DeSpawnNPC();
 	UFUNCTION(BlueprintCallable)
 	void SoftReset();
 
-	AAIController* NPCController;
-	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
-	TArray<AActor*> WalkTargets;
-
+	//Public Variables
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	bool PlayTest = false;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
@@ -52,17 +50,27 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	float WalkSpeed;
 
+	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
+	TArray<AActor*> WalkTargets;
+	AAIController* NPCController;
+
 private:
+	//Private Methods
+
+	//Movement Methods
 	void MoveToRandomPoint();
 	void MoveTo(AActor* Target);
 	bool InTargetRange(AActor* Target, double Radius);
+
+	//Timer Methods
 	void WaitTimer(float DeltaTime);
 	void CheckStandingStill(float DeltaTime);
 
-	ENPCState NPCState;
+	//Private Variables
 	AActor* WalkTarget;
-	FVector CurrentPos;
 
+	ENPCState NPCState;
+	FVector CurrentPos;
 	float WaitTime;
 	float StandingStillTime;
 	float TotalStillTime;

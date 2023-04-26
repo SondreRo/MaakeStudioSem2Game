@@ -184,7 +184,7 @@ void ASecurity_Guard::MoveTo(AActor* Target)
 
 	EnemyController->MoveTo(MoveRequest, &NavPath);
 
-	if (PlayTest)
+	if (PlayTest == true)
 	{
 		TArray<FNavPathPoint>& PathPoints = NavPath->GetPathPoints();
 		for (auto& Point : PathPoints)
@@ -318,10 +318,9 @@ void ASecurity_Guard::SendChasingTarget(FVector& location)
 void ASecurity_Guard::FreezeWhileMinigame()
 {
 	TempEnemyState = EnemyState;
-	TempSpeed = GetCharacterMovement()->MaxWalkSpeed;
 
 	EnemyState = EEnemyState::Frozen;
-	GetCharacterMovement()->MaxWalkSpeed = 0;
+	GetCharacterMovement()->DisableMovement();
 
 	UE_LOG(LogTemp, Warning, TEXT("Security Guard Froze"))
 }
@@ -329,7 +328,7 @@ void ASecurity_Guard::FreezeWhileMinigame()
 void ASecurity_Guard::UnFreezeAfterMinigame()
 {
 	EnemyState = TempEnemyState;
-	GetCharacterMovement()->MaxWalkSpeed = TempSpeed;
+	GetCharacterMovement()->SetMovementMode(MOVE_NavWalking);
 	MoveToLocation(TempLocation);
 
 	UE_LOG(LogTemp, Warning, TEXT("Security Guard UnFroze"))
