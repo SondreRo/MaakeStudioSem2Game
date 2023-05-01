@@ -337,7 +337,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MainInteractTrigger);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Completed, this, &APlayerCharacter::MainInteractEnd);
 
-
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Triggered, this, &APlayerCharacter::InteractTrigger);
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Completed, this, &APlayerCharacter::InteractEnd);
@@ -346,7 +345,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
 
 		//Keyboard Number Buttons
-
 		EnhanceInputCom->BindAction(ScrollWheelInput, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollWheelTrigger);
 
 		EnhanceInputCom->BindAction(SwapToolOneInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolOne);
@@ -761,6 +759,8 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		EViewTargetBlendFunction::VTBlend_Cubic,
 		1.f,
 		true);
+
+		//Timer changed og settings 1.f;
 }
 
 void APlayerCharacter::ShootRayForSideCharacter()
@@ -929,5 +929,5 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APlayerCharacter::ChangeViewTarget, ParameterToPass);
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.2, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.01, false);
 }
