@@ -26,7 +26,7 @@ ASecurity_Guard::ASecurity_Guard()
 	TotalWaitTime = 4;
 	AggroTime = 0;
 	TotalAggroTime = 2;
-	WalkSpeed = 100;
+	WalkSpeed = 200;
 	ChaseSpeed = 600;
 	CatchedPlayer = false;
 }

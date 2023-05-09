@@ -13,6 +13,8 @@ AInteractebleMinigameTrigger::AInteractebleMinigameTrigger()
 {
 	BoxCollider = CreateDefaultSubobject<UBoxComponent>("BoxCollider");
 	BoxCollider->SetupAttachment(GetRootComponent());
+
+	MiniGameHaveBeenPossessed = false;
 }
 
 void AInteractebleMinigameTrigger::BeginPlay()
@@ -39,14 +41,17 @@ void AInteractebleMinigameTrigger::Interacted()
 	}
 
 	SecurityGuard->FreezeWhileMinigame();
-
 	PlayerController->Possess(MinigameToPosses);
+	MiniGameHaveBeenPossessed = true;
 }
 
 void AInteractebleMinigameTrigger::InteractedEnd()
 {
-	SecurityGuard->UnFreezeAfterMinigame();
-	SetActorEnableCollision(false);
+	if (MiniGameHaveBeenPossessed == true)
+	{
+		SecurityGuard->UnFreezeAfterMinigame();
+		SetActorEnableCollision(false);
+	}
 }
 
 void AInteractebleMinigameTrigger::CastToSecurityGuard()
