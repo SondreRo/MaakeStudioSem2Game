@@ -42,4 +42,6 @@ private:
 	void CastToSecurityGuard();
 
 	APlayerController* PlayerController;
+
+	bool MiniGameHaveBeenPossessed;
 };
