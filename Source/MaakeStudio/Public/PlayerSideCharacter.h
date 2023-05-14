@@ -51,6 +51,15 @@ public:
 	UPROPERTY(EditAnywhere)
 	TArray<class AInteractable*> OverlappingActors;
 
+	//Audio Files
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Audio")
+	USoundBase* SoundGrab;
+
+
+	//Animations
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Animation")
+	UAnimMontage* GrabAnimation;
+	
 private:
 	FVector SpawnLocation;
 	FRotator SpawnRotation;

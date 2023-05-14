@@ -9,6 +9,8 @@
 
 #include "AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Animation/AnimInstance.h"
 
 // Sets default values
 APlayerSideCharacter::APlayerSideCharacter()
@@ -89,7 +91,7 @@ void APlayerSideCharacter::SoftReset()
 void APlayerSideCharacter::Interact()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Blue, TEXT("Hello from Side Character"));
-	Jump();
+	//Jump();
 
 	if (OverlappingActors.IsEmpty())
 	{
@@ -119,6 +121,10 @@ void APlayerSideCharacter::Interact()
 	}
 	
 	OverlappingActors[OverlappingIndex]->Interacted();
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), SoundGrab,GetActorLocation());
+	//GetMesh()->PlayAnimation(GrabAnimation, false);
+	//UAnimInstance::Montage_Play(GrabAnimation,1,EMontagePlayReturnType::Duration,0,true);
+	PlayAnimMontage(GrabAnimation);
 }
 
 void APlayerSideCharacter::OnOverlapBegin(UPrimitiveComponent* OverlappedComp, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
