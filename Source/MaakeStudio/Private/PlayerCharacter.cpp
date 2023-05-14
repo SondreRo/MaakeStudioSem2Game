@@ -9,6 +9,7 @@
 #include "Camera/CameraComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
+#include "Kismet/GameplayStatics.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
 #include "InputTriggers.h"
@@ -17,6 +18,7 @@
 #include "EngineUtils.h"
 
 #include "Engine/World.h"
+#include "Engine/Internal/Kismet/BlueprintTypeConversions.h"
 
 // Sets default values
 APlayerCharacter::APlayerCharacter()
@@ -77,6 +79,9 @@ APlayerCharacter::APlayerCharacter()
 	SusTimer = 0;
 	CanInteract = true;
 	isPossesed = true;
+
+	ShouldLineTrace = true;
+	SelectionDistance = 500;
 }
 
 // Called when the game starts or when spawned
@@ -109,6 +114,8 @@ void APlayerCharacter::BeginPlay()
 	SpawnRotation = GetActorRotation();
 
 	Tags.Add(FName("PlayerCharacter"));
+
+	
 }
 
 // Called every frame
@@ -127,11 +134,53 @@ void APlayerCharacter::Tick(float DeltaTime)
 
 	SeenPlacingCameraTimer(DeltaTime);
 
-	/*float velocity = GetVelocity().Length();
-	FString TheFloatStr = FString::SanitizeFloat(velocity);
-
-	GEngine->AddOnScreenDebugMessage(-1, 0, FColor::Red, TheFloatStr);*/
+	// if (ShouldLineTrace)
+	// {
+	// 	if (LineTraceSelection())
+	// 	{
+	// 		
+	// 	}
+	// }
 }
+
+bool APlayerCharacter::LineTraceSelection()
+{
+	FHitResult Hit;
+
+	FVector TraceStart = Camera->GetComponentLocation();
+	FVector TraceEnd = Camera->GetComponentLocation() + Camera->GetForwardVector() * SelectionDistance;
+
+	FCollisionQueryParams QueryParams;
+	QueryParams.AddIgnoredActor(this);
+	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
+	
+
+	if (Hit.HasValidHitObjectHandle())
+	{
+		if (Hit.GetActor()->ActorHasTag("Door"))
+		{
+			GEngine->AddOnScreenDebugMessage(-1,1,FColor::Green,TEXT("Door"));
+		}
+		if (Hit.GetActor()->ActorHasTag("PlayerCamera"))
+		{
+			GEngine->AddOnScreenDebugMessage(-1,1,FColor::Green,TEXT("PlayerCamera"));
+		}
+
+
+
+
+		
+		//DrawDebugLine(GetWorld(), TraceStart, Hit.Location,FColor::Green, false, 1);
+	}
+	else
+	{
+		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd,FColor::Red, false, 1);
+	}
+	
+	
+	return  Hit.HasValidHitObjectHandle();
+}
+
 void APlayerCharacter::CharMovement()
 {
 	FRotator ControlRotation = Controller->GetControlRotation();
@@ -337,7 +386,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Triggered, this, &APlayerCharacter::MainInteractTrigger);
 		EnhanceInputCom->BindAction(MainActionInput, ETriggerEvent::Completed, this, &APlayerCharacter::MainInteractEnd);
 
-
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Started, this, &APlayerCharacter::InteractStarted);
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Triggered, this, &APlayerCharacter::InteractTrigger);
 		EnhanceInputCom->BindAction(InteractInput, ETriggerEvent::Completed, this, &APlayerCharacter::InteractEnd);
@@ -346,7 +394,6 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhanceInputCom->BindAction(DeleteInput, ETriggerEvent::Triggered, this, &APlayerCharacter::DeleteTrigger);
 
 		//Keyboard Number Buttons
-
 		EnhanceInputCom->BindAction(ScrollWheelInput, ETriggerEvent::Triggered, this, &APlayerCharacter::ScrollWheelTrigger);
 
 		EnhanceInputCom->BindAction(SwapToolOneInput, ETriggerEvent::Started, this, &APlayerCharacter::SwapToolOne);
@@ -384,11 +431,15 @@ void APlayerCharacter::AddGameScore(float inScore, int inType)
 
 	switch(inType) {
 	case 1:
-		HasStolenPainting = true;
+		StolenPaintings ++;
 		break;
 	case 2:
-		HasStolenStatue = true;
+		StolenStatues ++;
 		break;
+	case 3:
+		HasOpenedVault = true;
+	case 4:
+		HasStolenGoldenStatue = true;
 	default:
 		GEngine->AddOnScreenDebugMessage(-1,5,FColor::Green,TEXT("No Index For AddGameScore"));
 	}
@@ -539,6 +590,10 @@ void APlayerCharacter::RunEnd(const FInputActionValue& input)
 
 void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 {
+	
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), LeftClickSound,GetActorLocation());
+
+	
 		if (AllActorsToControll.Num() == 0)
 		{
 			return;
@@ -553,23 +608,10 @@ void APlayerCharacter::MainInteractStarted(const FInputActionValue& input)
 	{
 		HoldingInteractButton = true;
 	}
-	//Update Blueprint
+	
+	//SelectMode();
 
-
-	switch (ToolSelected)
-	{
-	case 1:
-		SelectMode();
-
-		break;
-	//case 2:
-		//Camera Mode
-		//PlaceGhostCamera();
-		//break;
-
-	//default:
-		//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello"));
-	}
+	
 }
 
 void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
@@ -586,22 +628,9 @@ void APlayerCharacter::MainInteractTrigger(const FInputActionValue& input)
 	{
 		HoldingInteractButton = true;
 	}
-	//Update Blueprint
+		
+	PlaceGhostCamera();
 	
-	switch(ToolSelected)
-	{
-	case 1:
-		//SelectMode();
-
-		break;
-	case 2:
-		//Camera Mode
-		PlaceGhostCamera();
-		break;
-
-	default:
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello"));
-	}
 }
 
 void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
@@ -620,24 +649,16 @@ void APlayerCharacter::MainInteractEnd(const FInputActionValue& input)
 		HoldingInteractButton = false;
 	}
 
-	switch (ToolSelected)
-	{
-	case 1:
-		//Interact
-
-		break;
-	case 2:
-		//Camera Mode
-		CameraPlaceMode();
-		break;
-
-	default:
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("Hello"));
-	}
+	CameraPlaceMode();
+	
 }
 
 void APlayerCharacter::InteractStarted(const FInputActionValue& input)
 {
+	if (!CameraViewMode)
+	{
+		SelectMode();
+	}
 	
 }
 
@@ -761,6 +782,8 @@ void APlayerCharacter::ChangeViewTarget(int CameraIndex)
 		EViewTargetBlendFunction::VTBlend_Cubic,
 		1.f,
 		true);
+
+		//Timer changed og settings 1.f;
 }
 
 void APlayerCharacter::ShootRayForSideCharacter()
@@ -791,7 +814,7 @@ void APlayerCharacter::ShootRayForSideCharacter()
 	//GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, TraceChannelProperty, QueryParams);
 	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
 	
-	DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 3.0f);
+	//DrawDebugLine(GetWorld(), TraceStart, TraceEnd, Hit.bBlockingHit ? FColor::Blue : FColor::Red, false, 5.0f, 0, 3.0f);
 
 	if (Hit.GetActor())
 	{
@@ -922,12 +945,19 @@ void APlayerCharacter::UnPossessed()
 void APlayerCharacter::PossessedBy(AController* NewController)
 {
 	Super::PossessedBy(NewController);
+
+	
 	isPossesed = true;
 	//GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("ISPossesed"));
 	
 	int ParameterToPass = CameraToChangeTo ; // You can use any supported variable type
 
+	if(!CameraViewMode)
+	{
+		return;
+	}
+	
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APlayerCharacter::ChangeViewTarget, ParameterToPass);
-	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 0.2, false);
+	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 2, false);
 }

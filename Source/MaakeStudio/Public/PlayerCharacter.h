@@ -89,6 +89,13 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
 	void UpdateSun(bool IsInCameraMode);
 
+
+	//Audio Files
+	UPROPERTY(EditAnywhere,BlueprintReadWrite, Category = "Audio")
+	USoundBase* LeftClickSound;
+
+	
+	
 	//Ghost Camera
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> GhostCamera;
@@ -111,6 +118,9 @@ public:
 	float Timer;
 
 
+	UPROPERTY(EditAnywhere,BlueprintReadWrite)
+	bool ShouldLineTrace;
+	
 private:
 
 	//---------------MovementInputs-------------------//
@@ -154,6 +164,10 @@ private:
 	//---------------MovementFunctions-------------------//
 	void CharMovement();
 
+
+	//---------------InteractionInputs-------------------//
+	bool LineTraceSelection();
+	
 	//---------------SelectFunctions-------------------//
 	void SelectMode();
 
@@ -222,6 +236,9 @@ public:
 	float RayLength;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
+	float SelectionDistance;
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Variables|CameraPlacement")
 	float SideCharacterRayLength;
 
 
@@ -265,6 +282,18 @@ public:
 	bool HasStolenPainting; // 1
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
 	bool HasStolenStatue;	// 2
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasOpenedVault;	// 3
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	bool HasStolenGoldenStatue;	// 4
+
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	int StolenPaintings; // 1
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	int StolenStatues;	// 2
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "My Task")
+	
 	
 	//---------------Reset Variables-------------------//
 	FVector SpawnLocation;
