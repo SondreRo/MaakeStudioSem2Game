@@ -14,6 +14,7 @@ AInteractableStatue::AInteractableStatue()
 
 	SphereCollider = CreateDefaultSubobject<USphereComponent>("SphereCollider");
 	SphereCollider->SetupAttachment(GetRootComponent());
+	StatueType = 2;
 }
 
 void AInteractableStatue::BeginPlay()
@@ -50,5 +51,5 @@ void AInteractableStatue::CastToPlayer()
 {
 	AInteractable::CastToPlayer();
 
-	Player->AddGameScore(GameScore, 2);
+	Player->AddGameScore(GameScore, StatueType);
 }

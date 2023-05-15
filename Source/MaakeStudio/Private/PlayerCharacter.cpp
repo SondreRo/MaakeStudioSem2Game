@@ -16,6 +16,7 @@
 #include "PlayerCamera.h"
 #include "PlayerSideCharacter.h"
 #include "EngineUtils.h"
+#include "Engine/TriggerBox.h"
 
 #include "Engine/World.h"
 #include "Engine/Internal/Kismet/BlueprintTypeConversions.h"
@@ -419,6 +420,12 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 
 	HasStolenPainting = false;
 	HasStolenStatue = false;
+	HasOpenedVault = false;
+	HasStolenGoldenStatue = false;
+	StolenPaintings = 0;
+	StolenStatues = 0;
+	CameraViewMode = false;
+	
 }
 
 void APlayerCharacter::AddGameScore(float inScore, int inType)
@@ -564,15 +571,34 @@ void APlayerCharacter::DeleteTrigger(const FInputActionValue& input)
 
 void APlayerCharacter::CameraModeToggleTrigger(const FInputActionValue& input)
 {
+	if(SpawnedPlayerCameraArray.IsEmpty())
+	{
+		return;
+	}
+	
 	if (CameraViewMode)
 	{
-		CameraViewMode = false;
-		ChangeViewTarget(-1);
+		// CameraViewMode = false;
+		// ChangeViewTarget(-1);
 	}
 	else
 	{
-		ChangeViewTarget(CameraToChangeTo);
-		CameraViewMode = true;
+		TArray<AActor*> OverlappingActors;
+		GetOverlappingActors(OverlappingActors,nullptr);
+		for (int i{}; i < OverlappingActors.Num(); i++)
+		{
+			if (OverlappingActors[i]->ActorHasTag("Exit"))
+			{
+				ChangeViewTarget(CameraToChangeTo);
+				CameraViewMode = true;
+				SetActorLocation(FVector(5000,2000,900));
+				
+				for (int y{}; y < AllActorsToControll.Num(); y++)
+				{
+					AllActorsToControll[y]->SetActorLocation(FVector(5679,2768,87));
+				}
+			}
+		}
 	}
 }
 
@@ -960,4 +986,7 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APlayerCharacter::ChangeViewTarget, ParameterToPass);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 2, false);
+
+	
+	
 }

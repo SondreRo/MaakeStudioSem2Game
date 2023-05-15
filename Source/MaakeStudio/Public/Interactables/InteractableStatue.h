@@ -29,5 +29,7 @@ public:
 
 	virtual void SoftReset() override;
 
+	UPROPERTY(BlueprintReadWrite,EditAnywhere,Category = MyVeriables)
+	int StatueType;
 private:	
 };
