@@ -47,10 +47,12 @@ void AInteractebleMinigameTrigger::Interacted()
 
 void AInteractebleMinigameTrigger::InteractedEnd()
 {
+	GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("InteractEnd"));
 	if (MiniGameHaveBeenPossessed == true)
 	{
 		SecurityGuard->UnFreezeAfterMinigame();
 		SetActorEnableCollision(false);
+		GEngine->AddOnScreenDebugMessage(-1, 10, FColor::Red, TEXT("InteractEnd2"));
 	}
 }
 

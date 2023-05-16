@@ -433,8 +433,10 @@ void APlayerCharacter::AddGameScore(float inScore, int inType)
 		break;
 	case 3:
 		HasOpenedVault = true;
+		break;
 	case 4:
 		HasStolenGoldenStatue = true;
+		break;
 	default:
 		GEngine->AddOnScreenDebugMessage(-1,5,FColor::Green,TEXT("No Index For AddGameScore"));
 	}

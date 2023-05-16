@@ -104,6 +104,8 @@ public:
 	UPROPERTY(EditAnywhere, meta = (AllowPrivateAccess = "true"));
 	TSubclassOf<AActor> PlayerCamera;
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
+	void Failed();
 
 	UFUNCTION(CallInEditor, BlueprintCallable)
 	void SoftReset(bool DeleteCameras);

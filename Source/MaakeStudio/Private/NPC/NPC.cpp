@@ -13,7 +13,7 @@ ANPC::ANPC()
 
 	WaitTime = 0;
 	TotalWaitTime = 4;
-	WalkRadius = 175;
+	WalkRadius = 250;
 	WalkSpeed = 200;
 	TotalStillTime = 0.25f;
 }
@@ -42,8 +42,8 @@ void ANPC::Tick(float DeltaTime)
 
 	if (NPCState == ENPCState::Walking)
 	{
-		MoveToRandomPoint();
 		CheckStandingStill(DeltaTime);
+		MoveToRandomPoint();
 	}
 	else if (NPCState == ENPCState::Waiting)
 	{
@@ -109,7 +109,7 @@ void ANPC::MoveTo(AActor* Target)
 
 	FAIMoveRequest MoveRequest;
 	MoveRequest.SetGoalLocation(location);
-	MoveRequest.SetAcceptanceRadius(150.f);
+	MoveRequest.SetAcceptanceRadius(100.f);
 
 	FNavPathSharedPtr NavPath;
 
@@ -133,7 +133,16 @@ bool ANPC::InTargetRange(AActor* Target, double Radius)
 		return false;
 	}
 
-	const double DistanceToTarget = (Target->GetActorLocation() - this->GetActorLocation()).Size();
+	TArray<USceneComponent*> ActorComponents;
+	FVector location;
+
+	Target->GetComponents(ActorComponents);
+	for (auto SceneComponent : ActorComponents)
+	{
+		location = SceneComponent->GetComponentLocation();
+	}
+
+	double DistanceToTarget = (location - this->GetActorLocation()).Size();
 
 	return FMath::Abs(DistanceToTarget) <= Radius;
 }
@@ -155,7 +164,7 @@ void ANPC::WaitTimer(float DeltaTime)
 
 void ANPC::CheckStandingStill(float DeltaTime)
 {
-	if (GetCharacterMovement()->GetLastUpdateVelocity().Size() <= 10)
+	if (GetCharacterMovement()->GetLastUpdateVelocity().Size() <= 5)
 	{
 		StandingStillTime += DeltaTime;
 	}

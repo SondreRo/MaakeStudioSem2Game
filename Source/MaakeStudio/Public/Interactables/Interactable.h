@@ -38,6 +38,9 @@ public:
 	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
 	void InteractBlueprint();
 	
+	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
+	void SoftResetBlueprint();
+	
 	UFUNCTION(BlueprintCallable)
 	virtual void InteractedEnd();
 

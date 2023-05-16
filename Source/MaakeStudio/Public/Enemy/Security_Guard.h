@@ -8,6 +8,7 @@
 
 class AAIController;
 class UPawnSensingComponent;
+class APlayerCharacter;
 
 UENUM(BlueprintType)
 enum class EEnemyState : uint8
@@ -47,6 +48,7 @@ public:
 
 	void SendChasingTarget(FVector& location);
 	void FreezeWhileMinigame();
+	UFUNCTION(CallInEditor, BlueprintCallable)
 	void UnFreezeAfterMinigame();
 
 	//Public Variables
@@ -92,6 +94,7 @@ private:
 	TArray<AActor*> TestTargets;
 	AActor* PatrolTarget;
 	AActor* ChaseTarget;
+	APlayerCharacter* PlayerCharacter;
 
 	EEnemyState EnemyState;
 	EEnemyState TempEnemyState;
@@ -100,6 +103,7 @@ private:
 	FVector TempLocation;
 	int PatrolTargetNumber;
 	double PatrolRadius;
+	double ChaseRadius;
 	double CheckRadius;
 	bool Waiting;
 	float WaitTimer;
