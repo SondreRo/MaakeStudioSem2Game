@@ -35,6 +35,9 @@ public:
 	UFUNCTION(BlueprintCallable)
 	virtual void Interacted();
 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Calleble")
+	void InteractBlueprint();
+	
 	UFUNCTION(BlueprintCallable)
 	virtual void InteractedEnd();
 
