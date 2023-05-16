@@ -27,7 +27,7 @@ ASecurity_Guard::ASecurity_Guard()
 	AggroTime = 0;
 	TotalAggroTime = 2;
 	WalkSpeed = 200;
-	ChaseSpeed = 600;
+	ChaseSpeed = 450;
 	CatchedPlayer = false;
 }
 
@@ -273,7 +273,6 @@ void ASecurity_Guard::CheckingLocation()
 	if (InTargetRange(CheckLocation, CheckRadius))
 	{
 		EnemyState = EEnemyState::Waiting;
-		UE_LOG(LogTemp, Warning, TEXT("Gonna wait"))
 	}
 }
 
@@ -321,8 +320,6 @@ void ASecurity_Guard::FreezeWhileMinigame()
 
 	EnemyState = EEnemyState::Frozen;
 	GetCharacterMovement()->DisableMovement();
-
-	UE_LOG(LogTemp, Warning, TEXT("Security Guard Froze"))
 }
 
 void ASecurity_Guard::UnFreezeAfterMinigame()
@@ -330,6 +327,4 @@ void ASecurity_Guard::UnFreezeAfterMinigame()
 	EnemyState = TempEnemyState;
 	GetCharacterMovement()->SetMovementMode(MOVE_NavWalking);
 	MoveToLocation(TempLocation);
-
-	UE_LOG(LogTemp, Warning, TEXT("Security Guard UnFroze"))
 }

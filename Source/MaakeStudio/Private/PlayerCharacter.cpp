@@ -115,8 +115,6 @@ void APlayerCharacter::BeginPlay()
 	SpawnRotation = GetActorRotation();
 
 	Tags.Add(FName("PlayerCharacter"));
-
-	
 }
 
 // Called every frame
@@ -134,14 +132,6 @@ void APlayerCharacter::Tick(float DeltaTime)
 	AddControllerPitchInput(Pitch);
 
 	SeenPlacingCameraTimer(DeltaTime);
-
-	// if (ShouldLineTrace)
-	// {
-	// 	if (LineTraceSelection())
-	// 	{
-	// 		
-	// 	}
-	// }
 }
 
 bool APlayerCharacter::LineTraceSelection()
@@ -154,7 +144,6 @@ bool APlayerCharacter::LineTraceSelection()
 	FCollisionQueryParams QueryParams;
 	QueryParams.AddIgnoredActor(this);
 	GetWorld()->LineTraceSingleByChannel(Hit, TraceStart, TraceEnd, ECollisionChannel::ECC_Visibility, QueryParams);
-	
 
 	if (Hit.HasValidHitObjectHandle())
 	{
@@ -166,19 +155,13 @@ bool APlayerCharacter::LineTraceSelection()
 		{
 			GEngine->AddOnScreenDebugMessage(-1,1,FColor::Green,TEXT("PlayerCamera"));
 		}
-
-
-
-
-		
 		//DrawDebugLine(GetWorld(), TraceStart, Hit.Location,FColor::Green, false, 1);
 	}
 	else
 	{
 		//DrawDebugLine(GetWorld(), TraceStart, TraceEnd,FColor::Red, false, 1);
 	}
-	
-	
+
 	return  Hit.HasValidHitObjectHandle();
 }
 
@@ -325,7 +308,10 @@ void APlayerCharacter::CameraPlaceMode()
 		SpawnedPlayerCamera = World->SpawnActor<AActor>(PlayerCamera, LineTraceLocation, LineTraceNormal);
 		SpawnedPlayerCameraArray.Add(SpawnedPlayerCamera);
 
-		Tags.Add(FName("Sus"));
+		if (SeenPlacingCamera == false)
+		{
+			Tags.Add(FName("Sus"));
+		}
 		SeenPlacingCamera = true;
 	}
 
@@ -425,7 +411,9 @@ void APlayerCharacter::SoftReset(bool DeleteCameras)
 	StolenPaintings = 0;
 	StolenStatues = 0;
 	CameraViewMode = false;
-	
+
+	SeenPlacingCamera = false;
+	Tags.RemoveSingle(FName("Sus"));
 }
 
 void APlayerCharacter::AddGameScore(float inScore, int inType)
@@ -986,7 +974,4 @@ void APlayerCharacter::PossessedBy(AController* NewController)
 	FTimerHandle TimerHandle;
 	FTimerDelegate TimerDelegate = FTimerDelegate::CreateUObject(this, &APlayerCharacter::ChangeViewTarget, ParameterToPass);
 	GetWorld()->GetTimerManager().SetTimer(TimerHandle, TimerDelegate, 2, false);
-
-	
-	
 }
