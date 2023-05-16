@@ -39,7 +39,7 @@ void AInteractable::Tick(float DeltaTime)
 void AInteractable::Interacted()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM THE MASTER"));
-
+	InteractBlueprint();
 }
 
 void AInteractable::InteractedEnd()
