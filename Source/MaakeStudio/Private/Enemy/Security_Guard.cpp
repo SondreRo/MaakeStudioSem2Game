@@ -7,6 +7,8 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Perception/PawnSensingComponent.h"
 #include "EngineUtils.h"
+#include "Kismet/GameplayStatics.h"
+#include "PlayerCharacter.h"
 
 // Sets default values
 ASecurity_Guard::ASecurity_Guard()
@@ -21,6 +23,7 @@ ASecurity_Guard::ASecurity_Guard()
 
 	PatrolTargetNumber = 0;
 	PatrolRadius = 100;
+	ChaseRadius = 200;
 	CheckRadius = 100;
 	WaitTimer = 0;
 	TotalWaitTime = 4;
@@ -51,6 +54,10 @@ void ASecurity_Guard::BeginPlay()
 	{
 		MoveTo(PatrolTarget);
 	}
+
+	AActor* TempActor;
+	TempActor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerCharacter::StaticClass());
+	PlayerCharacter = Cast<APlayerCharacter>(TempActor);
 }
 
 // Called every frame
@@ -74,13 +81,6 @@ void ASecurity_Guard::SetupPlayerInputComponent(UInputComponent* PlayerInputComp
 /*-----Main Tick Methods-----*/
 void ASecurity_Guard::AI_TickRun(float DeltaTime)
 {
-	if (ChaseTarget != nullptr && InTargetRange(ChaseTarget, 200) && CatchedPlayer == false)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("In Range"));
-		CatchedPlayer = true;
-		Jump();
-	}
-
 	if (EnemyState == EEnemyState::Patrolling)
 	{
 		RandomPatrolling == true ? MoveToRandomPoint() : MoveToPoint();
@@ -91,6 +91,12 @@ void ASecurity_Guard::AI_TickRun(float DeltaTime)
 	}
 	else if (EnemyState == EEnemyState::Chasing)
 	{
+		if (ChaseTarget != nullptr && InTargetRange(ChaseTarget, ChaseRadius) && CatchedPlayer == false)
+		{
+			PlayerCharacter->Failed();
+			CatchedPlayer = true;
+			Jump();
+		}
 		AggroTimer(DeltaTime);
 	}
 	else if (EnemyState == EEnemyState::Waiting)

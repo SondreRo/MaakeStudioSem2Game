@@ -15,7 +15,7 @@ ANPC::ANPC()
 	TotalWaitTime = 4;
 	WalkRadius = 250;
 	WalkSpeed = 200;
-	TotalStillTime = 0.5f;
+	TotalStillTime = 0.25f;
 }
 
 // Called when the game starts or when spawned
@@ -88,7 +88,6 @@ void ANPC::MoveToRandomPoint()
 
 		WaitTime = 0;
 		NPCState = ENPCState::Waiting;
-		UE_LOG(LogTemp, Warning, TEXT("Waiting"));
 	}
 }
 
@@ -175,7 +174,6 @@ void ANPC::CheckStandingStill(float DeltaTime)
 		const int32 TargetSelection = FMath::RandRange(0, WalkTargets.Num() - 1);
 		WalkTarget = WalkTargets[TargetSelection];
 		MoveTo(WalkTarget);
-		UE_LOG(LogTemp, Warning, TEXT("standingstill"));
 	}
 }
 
