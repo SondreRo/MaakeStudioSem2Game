@@ -305,7 +305,7 @@ void ASecurity_Guard::SoftReset()
 	EnemyState = EEnemyState::Patrolling;
 	CatchedPlayer = false;
 	AggroTime = 0;
-
+	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;	
 	if (PatrolTarget != nullptr)
 	{
 		MoveTo(PatrolTarget);

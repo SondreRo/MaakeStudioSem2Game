@@ -48,6 +48,7 @@ public:
 
 	void SendChasingTarget(FVector& location);
 	void FreezeWhileMinigame();
+	UFUNCTION(CallInEditor, BlueprintCallable)
 	void UnFreezeAfterMinigame();
 
 	//Public Variables
