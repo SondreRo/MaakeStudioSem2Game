@@ -49,7 +49,7 @@ void AInteractable::InteractedEnd()
 
 void AInteractable::SoftReset()
 {
-	
+	SoftResetBlueprint();
 }
 
 void AInteractable::CastToPlayer()
