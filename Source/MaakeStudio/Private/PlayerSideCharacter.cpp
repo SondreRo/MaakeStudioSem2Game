@@ -186,4 +186,6 @@ void APlayerSideCharacter::InteractInRange()
 	}
 	//GEngine->AddOnScreenDebugMessage(-1,5,FColor::Red,TEXT("I have aids"));
 	PlayerCharacter->CanInteract = !OverlappingActors.IsEmpty();
+
+	
 }
