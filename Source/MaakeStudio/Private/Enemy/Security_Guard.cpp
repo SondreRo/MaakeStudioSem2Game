@@ -164,6 +164,7 @@ void ASecurity_Guard::MoveToLocation(FVector& location)
 
 	FNavPathSharedPtr NavPath;
 
+	GetCharacterMovement()->MaxWalkSpeed = ChaseSpeed;
 	EnemyController->MoveTo(MoveRequest, &NavPath);
 }
 
