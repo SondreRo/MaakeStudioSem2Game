@@ -1,9 +1,14 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+//Unreal include files
 #include "NPC/NPC.h"
 #include "AIController.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
+#include "Kismet/KismetMathLibrary.h"
+
+//Own include files
+#include "Interactables/SmallPainting.h"
 
 // Sets default values
 ANPC::ANPC()
@@ -24,6 +29,7 @@ void ANPC::BeginPlay()
 	Super::BeginPlay();
 
 	NPCController = Cast<AAIController>(GetController());
+	FindWalkTargets();
 
 	GetCharacterMovement()->MaxWalkSpeed = WalkSpeed;
 	const int32 TargetSelection = FMath::RandRange(0, WalkTargets.Num() - 1);
@@ -47,6 +53,7 @@ void ANPC::Tick(float DeltaTime)
 	}
 	else if (NPCState == ENPCState::Waiting)
 	{
+		RotateNPCTowardsObject(DeltaTime);
 		WaitTimer(DeltaTime);
 	}
 }
@@ -84,6 +91,7 @@ void ANPC::MoveToRandomPoint()
 	{
 		const int32 TargetSelection = FMath::RandRange(0, NumPatrolTargets - 1);
 		AActor* Target = ValidTargets[TargetSelection];
+		LastWalkTarget = WalkTarget;
 		WalkTarget = Target;
 
 		WaitTime = 0;
@@ -175,6 +183,21 @@ void ANPC::CheckStandingStill(float DeltaTime)
 		WalkTarget = WalkTargets[TargetSelection];
 		MoveTo(WalkTarget);
 	}
+}
+
+void ANPC::FindWalkTargets()
+{
+	UGameplayStatics::GetAllActorsOfClass(GetWorld(), ASmallPainting::StaticClass(), WalkTargets);
+}
+
+void ANPC::RotateNPCTowardsObject(float DeltaTime)
+{
+	FVector ObjectLocation = LastWalkTarget->GetActorLocation();
+	FRotator ObjectRotation = UKismetMathLibrary::FindLookAtRotation(this->GetActorLocation(), ObjectLocation);
+	FRotator NewRotation = FMath::RInterpTo(GetActorRotation(), ObjectRotation, DeltaTime, 2);
+	NewRotation.Pitch = 0;
+
+	SetActorRotation(NewRotation);
 }
 
 //---------------------------//

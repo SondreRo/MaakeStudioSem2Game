@@ -50,13 +50,10 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI Settings")
 	float WalkSpeed;
 
-	UPROPERTY(EditInstanceOnly, Category = "AI Settings")
-	TArray<AActor*> WalkTargets;
 	AAIController* NPCController;
 
 private:
 	//Private Methods
-
 	//Movement Methods
 	void MoveToRandomPoint();
 	void MoveTo(AActor* Target);
@@ -66,8 +63,14 @@ private:
 	void WaitTimer(float DeltaTime);
 	void CheckStandingStill(float DeltaTime);
 
+	//Other Methods
+	void FindWalkTargets();
+	void RotateNPCTowardsObject(float DeltaTime);
+
 	//Private Variables
+	TArray<AActor*> WalkTargets;
 	AActor* WalkTarget;
+	AActor* LastWalkTarget;
 
 	ENPCState NPCState;
 	FVector CurrentPos;
