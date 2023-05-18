@@ -78,7 +78,7 @@ void APlayerSideCharacter::WalkToPoint(FVector inWalkPoint)
 	FNavPathSharedPtr NavPath;
 
 	PlayerSideController->MoveTo(MoveRequest, &NavPath);
-
+	
 }
 
 void APlayerSideCharacter::SoftReset()

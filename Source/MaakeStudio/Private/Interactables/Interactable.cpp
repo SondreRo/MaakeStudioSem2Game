@@ -4,8 +4,10 @@
 #include "Interactables/Interactable.h"
 
 #include "PlayerCharacter.h"
+#include "PlayerSideCharacter.h"
 #include "EngineUtils.h"
-
+#include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AInteractable::AInteractable()
@@ -40,6 +42,17 @@ void AInteractable::Interacted()
 {
 	//GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Red, TEXT("I AM THE MASTER"));
 	InteractBlueprint();
+	AActor* TempActor;
+	APlayerSideCharacter* PlayerSideCharacter;
+
+	TempActor = UGameplayStatics::GetActorOfClass(GetWorld(), APlayerSideCharacter::StaticClass());
+	PlayerSideCharacter = Cast<APlayerSideCharacter>(TempActor);
+	if (!PlayerSideCharacter) 
+	{
+		return;
+	}
+	float tempMaxWalkSpeed = PlayerSideCharacter->GetCharacterMovement()->MaxWalkSpeed;
+	PlayerSideCharacter->GetCharacterMovement()->MaxWalkSpeed = (tempMaxWalkSpeed * 1.01);
 }
 
 void AInteractable::InteractedEnd()
