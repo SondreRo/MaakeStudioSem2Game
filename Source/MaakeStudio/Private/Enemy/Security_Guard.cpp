@@ -1,6 +1,6 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
+//Unreal include files
 #include "Enemy/Security_Guard.h"
 #include "AIController.h"
 #include "DrawDebugHelpers.h"
@@ -8,6 +8,8 @@
 #include "Perception/PawnSensingComponent.h"
 #include "EngineUtils.h"
 #include "Kismet/GameplayStatics.h"
+
+//Own include files
 #include "PlayerCharacter.h"
 
 // Sets default values
